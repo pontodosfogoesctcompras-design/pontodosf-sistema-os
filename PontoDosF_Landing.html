@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ponto dos Fogões — Sistema OS</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0E0E0E;color:#F5F5F5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:#1A1A1A;border-radius:20px;padding:40px;max-width:480px;width:100%;text-align:center;border:1px solid rgba(255,255,255,.08)}
+.logo{margin-bottom:24px}
+.logo svg{width:80px;height:80px}
+h1{font-size:26px;font-weight:800;margin-bottom:6px}
+.sub{font-size:13px;color:#666;margin-bottom:32px;letter-spacing:.1em;text-transform:uppercase}
+.btn{display:block;width:100%;padding:15px;background:linear-gradient(135deg,#F57518,#FF8E11);color:#fff;text-decoration:none;border-radius:12px;font-size:16px;font-weight:700;margin-bottom:12px;transition:all .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,117,24,.4)}
+.btn-sec{background:#242424;color:#F5F5F5;border:1px solid rgba(255,255,255,.1)}
+.btn-sec:hover{background:#2E2E2E;box-shadow:none}
+.info{font-size:12px;color:#444;margin-top:24px;line-height:1.8}
+.badge{display:inline-block;background:rgba(245,117,24,.15);color:#FF8E11;border-radius:4px;padding:2px 8px;font-size:10px;font-weight:700;margin-bottom:20px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="50" fill="#0A4A96"/>
+      <circle cx="50" cy="50" r="35" fill="#0E0E0E"/>
+      <g fill="#F57518">
+        <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(0 50 50)"/>
+        <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(45 50 50)"/>
+        <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(90 50 50)"/>
+        <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(135 50 50)"/>
+        <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(180 50 50)"/>
+        <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(225 50 50)"/>
+        <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(270 50 50)"/>
+        <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(315 50 50)"/>
+      </g>
+      <circle cx="50" cy="50" r="13" fill="#F57518"/>
+      <circle cx="50" cy="50" r="7" fill="#0E0E0E"/>
+    </svg>
+  </div>
+  <div class="badge">SISTEMA OS v3.0</div>
+  <h1>Ponto dos Fogões</h1>
+  <p class="sub">Gestão de Ordens de Serviço</p>
+  <a class="btn" href="sistema/index.html">🔥 Entrar no Sistema</a>
+  <a class="btn btn-sec" href="docs/PENDENCIAS.html" onclick="alert('Veja o arquivo PENDENCIAS.md no repositório');return false">📋 Pendências do Projeto</a>
+  <div class="info">
+    Rua Rodrigues da Cunha 767, Ressaca — Contagem MG<br>
+    (31) 99268-3079 | CNPJ: 40.629.028/0001-07<br><br>
+    <span style="color:#333">Uso interno — acesso restrito por senha</span>
+  </div>
+</div>
+</body>
+</html>
