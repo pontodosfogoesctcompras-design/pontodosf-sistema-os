@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0A4A96">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fogões OS">
+<title>Ponto dos Fogões — Sistema OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --azul:    #0A4A96;
+  --azul2:   #1256B4;
+  --laranja: #F57518;
+  --laranja2:#FF8E11;
+  --bg:      #0E0E0E;
+  --bg1:     #1A1A1A;
+  --bg2:     #242424;
+  --bg3:     #2E2E2E;
+  --texto:   #F5F5F5;
+  --texto2:  #AAAAAA;
+  --texto3:  #666666;
+  --verde:   #22C55E;
+  --azulc:   #3B82F6;
+  --amarelo: #F59E0B;
+  --vermelho:#EF4444;
+  --roxo:    #8B5CF6;
+  --borda:   rgba(255,255,255,.08);
+  --borda2:  rgba(245,117,24,.25);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--texto); min-height:100vh; }
+button,input,select,textarea { font-family:'Inter',sans-serif; }
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-thumb { background:var(--azul); border-radius:4px; }
+
+/* ── LOGIN ── */
+#loginScreen {
+  position:fixed; inset:0; background:var(--bg);
+  display:flex; align-items:center; justify-content:center;
+  z-index:1000; padding:16px;
+}
+.lcard {
+  background:var(--bg1); border:1px solid var(--borda);
+  border-radius:20px; padding:32px 28px; width:100%; max-width:420px;
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+}
+.llogo {
+  text-align:center; margin-bottom:28px;
+}
+.llogo img { width:72px; height:72px; border-radius:16px; margin-bottom:12px; }
+.llogo h1 { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; }
+.llogo p { font-size:11px; color:var(--texto3); letter-spacing:.12em; text-transform:uppercase; margin-top:3px; }
+
+.perfis { display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
+.perfil-btn {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 14px; border-radius:12px;
+  border:2px solid var(--borda); background:var(--bg2);
+  cursor:pointer; transition:all .15s; text-align:left;
+}
+.perfil-btn:hover { border-color:var(--laranja); background:var(--bg3); }
+.perfil-btn.selecionado { border-color:var(--laranja); background:rgba(245,117,24,.1); }
+.perfil-btn.inativo { opacity:.4; cursor:not-allowed; }
+.perfil-avatar {
+  width:42px; height:42px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; flex-shrink:0;
+}
+.perfil-nome { font-size:13px; font-weight:700; color:var(--texto); }
+.perfil-cargo { font-size:11px; color:var(--texto3); margin-top:1px; }
+.perfil-tag {
+  margin-left:auto; padding:2px 8px; border-radius:4px;
+  font-size:10px; font-weight:700; flex-shrink:0;
+}
+
+.lsenha {
+  width:100%; padding:13px 14px; background:var(--bg2);
+  border:1px solid var(--borda); border-radius:10px;
+  color:var(--texto); font-size:15px; outline:none;
+  margin-bottom:12px; transition:border-color .15s;
+}
+.lsenha:focus { border-color:var(--laranja); }
+.lentrar {
+  width:100%; padding:14px; background:linear-gradient(135deg,var(--laranja),var(--laranja2));
+  color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:700;
+  cursor:pointer; transition:all .2s;
+}
+.lentrar:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(245,117,24,.4); }
+.lerro { color:var(--vermelho); font-size:12px; text-align:center; margin-top:10px; min-height:18px; }
+
+/* ── APP ── */
+#app { display:none; flex-direction:column; height:100vh; }
+#app.visivel { display:flex; }
+
+/* TOPBAR */
+.topbar {
+  height:54px; background:var(--bg1); border-bottom:1px solid var(--borda);
+  display:flex; align-items:center; padding:0 16px; gap:10px;
+  flex-shrink:0; position:relative; z-index:50;
+}
+.tlogo {
+  display:flex; align-items:center; gap:9px;
+  padding-right:14px; border-right:1px solid var(--borda); flex-shrink:0;
+}
+.tlogo img { width:28px; height:28px; border-radius:8px; }
+.tlogo-txt { font-family:'Syne',sans-serif; font-size:13px; font-weight:800; }
+.tlogo-sub { font-size:9px; color:var(--laranja); display:block; margin-top:-2px; }
+
+.tnav { display:flex; gap:2px; flex:1; overflow-x:auto; }
+.tnav::-webkit-scrollbar { display:none; }
+.tbtn {
+  display:flex; align-items:center; gap:6px;
+  padding:7px 11px; border-radius:8px; border:none;
+  background:transparent; color:var(--texto3);
+  font-size:12px; font-weight:500; cursor:pointer;
+  white-space:nowrap; transition:all .15s;
+}
+.tbtn:hover { background:var(--bg2); color:var(--texto); }
+.tbtn.on { background:rgba(245,117,24,.12); color:var(--laranja2); font-weight:600; }
+.tbtn .tico { font-size:14px; }
+.tbtn .tcnt {
+  background:var(--vermelho); color:#fff; border-radius:99px;
+  padding:1px 5px; font-size:9px; font-weight:800;
+}
+
+.tright { display:flex; align-items:center; gap:8px; margin-left:auto; flex-shrink:0; }
+.tstatus { font-size:10px; color:var(--texto3); }
+.uchip {
+  display:flex; align-items:center; gap:7px;
+  padding:5px 10px; background:var(--bg2);
+  border:1px solid var(--borda); border-radius:99px; cursor:pointer;
+}
+.uav { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; }
+.unm { font-size:11px; font-weight:600; }
+
+/* ALERTA BAR */
+.abar {
+  background:rgba(245,117,24,.08); border-bottom:1px solid var(--borda2);
+  padding:7px 16px; display:flex; align-items:center; gap:10px;
+  flex-shrink:0; flex-wrap:wrap;
+}
+.aitem {
+  display:flex; align-items:center; gap:5px;
+  padding:3px 10px; border-radius:99px; font-size:11px; font-weight:600;
+  background:rgba(245,117,24,.12); border:1px solid var(--borda2);
+  cursor:pointer;
+}
+.aitem.urg { background:rgba(239,68,68,.12); border-color:rgba(239,68,68,.3); color:#F87171; }
+
+/* CONTENT */
+.content { flex:1; overflow-y:auto; padding:20px; }
+.page { display:none; }
+.page.on { display:block; animation:fadeIn .18s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+
+/* BOTÕES */
+.btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:8px; font-size:12px; font-weight:600;
+  cursor:pointer; border:none; transition:all .15s; white-space:nowrap;
+}
+.btn-p { background:linear-gradient(135deg,var(--laranja),var(--laranja2)); color:#fff; }
+.btn-p:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(245,117,24,.4); }
+.btn-g { background:var(--bg2); color:var(--texto); border:1px solid var(--borda); }
+.btn-g:hover { background:var(--bg3); }
+.btn-vd { background:rgba(34,197,94,.1); color:var(--verde); border:1px solid rgba(34,197,94,.25); }
+.btn-az { background:rgba(59,130,246,.1); color:var(--azulc); border:1px solid rgba(59,130,246,.25); }
+.btn-wa { background:#25D366; color:#fff; }
+.btn-wa:hover { background:#1da851; }
+.btn-vm { background:rgba(239,68,68,.1); color:var(--vermelho); border:1px solid rgba(239,68,68,.2); }
+.btn-am { background:rgba(245,158,11,.1); color:var(--amarelo); border:1px solid rgba(245,158,11,.2); }
+.btn-sm { padding:5px 10px; font-size:11px; }
+.btn-xs { padding:3px 8px; font-size:10px; }
+.btn-lg { padding:12px 22px; font-size:14px; }
+
+/* STATS */
+.stats { display:grid; grid-template-columns:repeat(auto-fill,minmax(148px,1fr)); gap:10px; margin-bottom:18px; }
+.sc {
+  background:var(--bg1); border:1px solid var(--borda); border-radius:12px;
+  padding:15px; cursor:pointer; transition:all .2s; position:relative; overflow:hidden;
+}
+.sc::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--acc,var(--laranja)); }
+.sc:hover { transform:translateY(-2px); border-color:var(--acc,var(--laranja)); }
+.sc-ico { font-size:20px; margin-bottom:9px; }
+.sc-val { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:var(--acc,var(--texto)); }
+.sc-lbl { font-size:11px; color:var(--texto3); margin-top:4px; }
+
+/* CARD */
+.card { background:var(--bg1); border:1px solid var(--borda); border-radius:12px; padding:18px; }
+.ctitle { font-family:'Syne',sans-serif; font-size:13px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; }
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+
+/* KANBAN */
+.kanban { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; }
+.kcol { background:var(--bg1); border:1px solid var(--borda); border-radius:12px; overflow:hidden; min-height:400px; }
+.khead { padding:10px 13px; border-bottom:1px solid var(--borda); display:flex; align-items:center; justify-content:space-between; border-top:3px solid var(--kc,var(--laranja)); }
+.khtitle { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--kc,var(--texto)); }
+.khcnt { background:var(--bg3); border-radius:99px; padding:2px 7px; font-size:10px; font-weight:700; }
+.kbody { padding:8px; display:flex; flex-direction:column; gap:6px; min-height:340px; }
+.kbody.dov { background:rgba(245,117,24,.06); }
+.kcard {
+  background:var(--bg2); border:1px solid var(--borda); border-radius:8px;
+  padding:11px; cursor:pointer; transition:all .15s;
+  border-left:3px solid var(--kc,var(--borda));
+}
+.kcard:hover { background:var(--bg3); transform:translateY(-1px); }
+.kcard.drag { opacity:.4; }
+.kc-num { font-family:'Syne',sans-serif; font-size:10px; font-weight:800; color:var(--laranja); }
+.kc-cli { font-size:12px; font-weight:700; margin:3px 0 2px; }
+.kc-item { font-size:10px; color:var(--texto3); line-height:1.35; }
+.kc-ft { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+.kc-val { font-size:11px; font-weight:800; color:var(--laranja2); }
+.kc-data { font-size:10px; color:var(--texto3); }
+.kc-btns { display:flex; gap:4px; margin-top:7px; }
+
+/* TABELA */
+.tw { background:var(--bg1); border:1px solid var(--borda); border-radius:12px; overflow:hidden; }
+.ttbar { padding:11px 13px; border-bottom:1px solid var(--borda); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.busca { display:flex; align-items:center; gap:7px; background:var(--bg2); border:1px solid var(--borda); border-radius:8px; padding:7px 11px; flex:1; max-width:280px; }
+.busca input { background:none; border:none; color:var(--texto); font-size:12px; outline:none; width:100%; }
+.busca input::placeholder { color:var(--texto3); }
+.pill { padding:4px 10px; border-radius:99px; font-size:11px; font-weight:600; cursor:pointer; border:1px solid var(--borda); background:transparent; color:var(--texto3); transition:all .15s; }
+.pill:hover,.pill.on { background:rgba(245,117,24,.1); color:var(--laranja2); border-color:var(--borda2); }
+table { width:100%; border-collapse:collapse; }
+thead th { padding:9px 12px; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--texto3); text-align:left; border-bottom:1px solid var(--borda); white-space:nowrap; }
+tbody tr { border-bottom:1px solid rgba(255,255,255,.03); cursor:pointer; transition:background .1s; }
+tbody tr:hover { background:rgba(245,117,24,.04); }
+tbody td { padding:10px 12px; font-size:12px; vertical-align:middle; }
+.td-os { font-family:'Syne',sans-serif; font-weight:800; color:var(--laranja); }
+.td-val { font-family:'Syne',sans-serif; font-weight:800; color:var(--laranja2); }
+.td-nm { font-weight:600; }
+.tfoot { padding:10px 13px; border-top:1px solid var(--borda); display:flex; align-items:center; justify-content:space-between; }
+.tinfo { font-size:11px; color:var(--texto3); }
+.tpags { display:flex; gap:4px; }
+.tpbtn { width:28px; height:28px; border-radius:4px; border:1px solid var(--borda); background:transparent; color:var(--texto3); cursor:pointer; font-size:11px; font-weight:700; transition:all .15s; }
+.tpbtn:hover,.tpbtn.on { background:rgba(245,117,24,.1); color:var(--laranja2); border-color:var(--borda2); }
+
+/* CHIPS STATUS */
+.chip { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:99px; font-size:10px; font-weight:700; white-space:nowrap; }
+.chip::before { content:''; width:5px; height:5px; border-radius:50%; background:currentColor; flex-shrink:0; }
+.ch-E  { background:rgba(34,197,94,.1);   color:#4ade80; }
+.ch-P  { background:rgba(59,130,246,.1);  color:#7BA7F5; }
+.ch-A  { background:rgba(245,158,11,.1);  color:#FBB040; }
+.ch-AP { background:rgba(139,92,246,.1);  color:#A78BFA; }
+.ch-NA { background:rgba(249,115,22,.1);  color:#FB923C; }
+.ch-C  { background:rgba(107,114,128,.1); color:#9CA3AF; }
+.ch-D  { background:rgba(239,68,68,.1);   color:#F87171; }
+.ch-PC { background:rgba(20,184,166,.1);  color:#2DD4BF; }
+.te { background:rgba(59,130,246,.15);  color:#7BA7F5; border-radius:4px; padding:2px 7px; font-size:10px; font-weight:800; }
+.tp { background:rgba(34,197,94,.15);   color:#4ade80;  border-radius:4px; padding:2px 7px; font-size:10px; font-weight:800; }
+
+/* MODAL */
+.ov { position:fixed; inset:0; background:rgba(0,0,0,.8); display:flex; align-items:center; justify-content:center; z-index:500; opacity:0; pointer-events:none; transition:opacity .2s; backdrop-filter:blur(6px); padding:16px; }
+.ov.on { opacity:1; pointer-events:all; }
+.modal { background:var(--bg1); border:1px solid var(--borda); border-radius:16px; width:100%; max-width:700px; max-height:90vh; overflow-y:auto; box-shadow:0 32px 96px rgba(0,0,0,.7); transform:translateY(12px); transition:transform .2s; }
+.ov.on .modal { transform:translateY(0); }
+.mhead { padding:18px 20px 14px; border-bottom:1px solid var(--borda); display:flex; align-items:center; justify-content:space-between; gap:10px; position:sticky; top:0; background:var(--bg1); z-index:1; }
+.mtitle { font-family:'Syne',sans-serif; font-size:17px; font-weight:800; }
+.macoes { display:flex; gap:6px; align-items:center; }
+.mclose { background:var(--bg2); border:1px solid var(--borda); color:var(--texto3); width:28px; height:28px; border-radius:8px; cursor:pointer; font-size:15px; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.mclose:hover { color:var(--texto); background:var(--bg3); }
+.mbody { padding:18px 20px 22px; }
+
+/* FORM */
+.fg { display:flex; flex-direction:column; gap:5px; }
+.fg label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--texto3); }
+.fg input,.fg select,.fg textarea { background:var(--bg2); border:1px solid var(--borda); border-radius:8px; padding:9px 12px; color:var(--texto); font-size:13px; outline:none; transition:border-color .15s; }
+.fg input:focus,.fg select:focus,.fg textarea:focus { border-color:var(--laranja); }
+.fg select option { background:var(--bg1); }
+.fg textarea { resize:vertical; min-height:64px; line-height:1.5; }
+.fgrid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.fc2 { grid-column:1/-1; }
+.ibloco { background:var(--bg2); border:1px solid var(--borda); border-radius:8px; padding:13px; margin-bottom:10px; }
+.ibhead { display:flex; align-items:center; justify-content:space-between; margin-bottom:11px; }
+.ibtitle { font-size:11px; font-weight:700; color:var(--laranja2); }
+
+/* INFO GRID */
+.ig { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.igitem { background:var(--bg2); border-radius:8px; padding:11px; border:1px solid var(--borda); }
+.igk { font-size:10px; color:var(--texto3); margin-bottom:3px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
+.igv { font-size:13px; font-weight:500; }
+.iln { background:var(--bg2); border-radius:8px; padding:11px 13px; margin-bottom:7px; display:flex; align-items:flex-start; gap:10px; border:1px solid var(--borda); }
+.iln-n { width:22px; height:22px; border-radius:4px; background:rgba(245,117,24,.15); color:var(--laranja2); font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.iln-ap { font-size:13px; font-weight:600; }
+.iln-ht { font-size:11px; color:var(--texto3); margin-top:2px; line-height:1.4; }
+.iln-vl { font-family:'Syne',sans-serif; font-weight:800; color:var(--laranja2); font-size:13px; flex-shrink:0; }
+
+/* STATUS PILLS */
+.spills { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+.spill { padding:6px 12px; border-radius:99px; font-size:11px; font-weight:700; cursor:pointer; border:1px solid transparent; transition:all .15s; }
+.spill.on { border-color:currentColor; box-shadow:0 0 0 2px currentColor; }
+
+/* WA */
+.wabox { background:rgba(37,211,102,.05); border:1px solid rgba(37,211,102,.18); border-radius:12px; padding:14px; }
+.watitle { color:var(--verde); font-size:12px; font-weight:700; margin-bottom:10px; }
+.wamsg { background:var(--bg2); border-radius:8px; padding:11px; font-size:11px; line-height:1.65; white-space:pre-wrap; max-height:140px; overflow-y:auto; margin-bottom:10px; }
+.wabtns { display:flex; gap:7px; flex-wrap:wrap; }
+.watbns { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px; }
+
+/* BARRAS */
+.bar { display:flex; align-items:center; gap:10px; margin-bottom:7px; }
+.barlbl { font-size:11px; color:var(--texto3); width:76px; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.bartr { flex:1; height:5px; background:var(--bg3); border-radius:99px; overflow:hidden; }
+.barfl { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--laranja),var(--laranja2)); }
+.barval { font-size:11px; font-weight:700; min-width:70px; text-align:right; }
+.fatrow { display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--borda); }
+.fatrow:last-child { border:none; }
+
+/* GARANTIAS */
+.gcard { background:var(--bg1); border:1px solid var(--borda); border-radius:12px; padding:13px; margin-bottom:7px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:all .15s; }
+.gcard:hover { border-color:var(--borda2); }
+.gdias { width:48px; height:48px; border-radius:8px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.gd-n { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; line-height:1; }
+.gd-s { font-size:9px; font-weight:700; text-transform:uppercase; }
+.gurg { background:rgba(239,68,68,.15); color:#F87171; }
+.gat  { background:rgba(245,158,11,.15); color:#FBB040; }
+.gok  { background:rgba(34,197,94,.12);  color:#4ade80; }
+
+/* CLIENTES */
+.clicard { background:var(--bg1); border:1px solid var(--borda); border-radius:12px; padding:14px; margin-bottom:8px; cursor:pointer; transition:all .15s; display:flex; align-items:center; gap:13px; }
+.clicard:hover { border-color:var(--laranja); }
+.cliav { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; flex-shrink:0; font-family:'Syne',sans-serif; }
+.cliinfo { flex:1; }
+.clinom { font-size:14px; font-weight:700; }
+.clitel { font-size:11px; color:var(--texto3); margin-top:2px; }
+.clistat b { color:var(--laranja2); }
+
+/* TOAST */
+#toast { position:fixed; bottom:22px; right:22px; z-index:9999; background:var(--bg2); border:1px solid var(--borda2); border-radius:12px; padding:11px 18px; font-size:13px; font-weight:500; box-shadow:0 8px 32px rgba(0,0,0,.5); transform:translateY(80px); transition:transform .3s; display:flex; align-items:center; gap:10px; max-width:320px; pointer-events:none; }
+#toast.show { transform:translateY(0); }
+
+/* MOBILE */
+@media (max-width:768px) {
+  .topbar { position:fixed; top:0; left:0; right:0; z-index:100; }
+  #app { padding-top:54px; padding-bottom:64px; }
+  .tnav { display:none; }
+  .content { padding:12px; }
+  .stats { grid-template-columns:1fr 1fr; gap:8px; }
+  .kanban { grid-template-columns:1fr; }
+  .g2,.g3 { grid-template-columns:1fr; }
+  .fgrid { grid-template-columns:1fr; }
+  .fc2 { grid-column:unset; }
+  .ig { grid-template-columns:1fr; }
+  .ov { align-items:flex-end; padding:0; }
+  .modal { border-radius:16px 16px 0 0; max-height:92vh; max-width:100%; }
+  .fg input,.fg select,.fg textarea { font-size:16px; }
+  .botomnav { display:flex !important; }
+}
+.botomnav {
+  display:none; position:fixed; bottom:0; left:0; right:0;
+  background:var(--bg1); border-top:1px solid var(--borda);
+  z-index:100; padding:6px 0 8px;
+}
+.bnbtn { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:4px 2px; border:none; background:transparent; color:var(--texto3); font-size:9px; font-weight:600; cursor:pointer; transition:all .15s; font-family:'Inter',sans-serif; }
+.bnbtn .bnico { font-size:20px; }
+.bnbtn.on { color:var(--laranja2); }
+
+@media (max-width:768px) {
+  thead th:nth-child(4),thead th:nth-child(5),tbody td:nth-child(4),tbody td:nth-child(5) { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="lcard">
+    <div class="llogo">
+      <div style="width:72px;height:72px;border-radius:16px;background:#0A4A96;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 20px rgba(10,74,150,.5)">
+        <svg width="52" height="52" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="46" fill="#0A4A96"/>
+          <circle cx="50" cy="50" r="32" fill="#0E0E0E"/>
+          <g fill="#F57518">
+            <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(0 50 50)"/>
+            <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(45 50 50)"/>
+            <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(90 50 50)"/>
+            <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(135 50 50)"/>
+            <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(180 50 50)"/>
+            <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(225 50 50)"/>
+            <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(270 50 50)"/>
+            <ellipse cx="50" cy="14" rx="6" ry="10" transform="rotate(315 50 50)"/>
+          </g>
+          <circle cx="50" cy="50" r="12" fill="#F57518"/>
+          <circle cx="50" cy="50" r="6" fill="#0E0E0E"/>
+        </svg>
+      </div>
+      <h1>Ponto dos Fogões</h1>
+      <p>Sistema de Ordens de Serviço</p>
+    </div>
+    <p style="font-size:11px;color:var(--texto3);text-align:center;margin-bottom:14px">Selecione seu perfil</p>
+    <div class="perfis" id="perfisLista"></div>
+    <input class="lsenha" type="password" id="senhaInput" placeholder="Senha (padrão: 1234)" onkeydown="if(event.key==='Enter')entrar()">
+    <button class="lentrar" onclick="entrar()">Entrar no Sistema</button>
+    <div class="lerro" id="erroLogin"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="tlogo">
+      <svg width="28" height="28" viewBox="0 0 100 100" style="border-radius:8px;flex-shrink:0">
+        <circle cx="50" cy="50" r="50" fill="#0A4A96"/>
+        <circle cx="50" cy="50" r="32" fill="#0E0E0E"/>
+        <g fill="#F57518">
+          <ellipse cx="50" cy="15" rx="5.5" ry="9.5" transform="rotate(0 50 50)"/>
+          <ellipse cx="50" cy="15" rx="5.5" ry="9.5" transform="rotate(45 50 50)"/>
+          <ellipse cx="50" cy="15" rx="5.5" ry="9.5" transform="rotate(90 50 50)"/>
+          <ellipse cx="50" cy="15" rx="5.5" ry="9.5" transform="rotate(135 50 50)"/>
+          <ellipse cx="50" cy="15" rx="5.5" ry="9.5" transform="rotate(180 50 50)"/>
+          <ellipse cx="50" cy="15" rx="5.5" ry="9.5" transform="rotate(225 50 50)"/>
+          <ellipse cx="50" cy="15" rx="5.5" ry="9.5" transform="rotate(270 50 50)"/>
+          <ellipse cx="50" cy="15" rx="5.5" ry="9.5" transform="rotate(315 50 50)"/>
+        </g>
+        <circle cx="50" cy="50" r="11" fill="#F57518"/>
+        <circle cx="50" cy="50" r="6" fill="#0E0E0E"/>
+      </svg>
+      <div><span class="tlogo-txt">Ponto dos Fogões</span><small class="tlogo-sub">Sistema OS</small></div>
+    </div>
+    <nav class="tnav" id="topNav"></nav>
+    <div class="tright">
+      <span class="tstatus" id="fbStatus">⚪</span>
+      <button class="btn btn-p btn-sm" onclick="ir('novaOS')">+ Nova OS</button>
+      <div class="uchip" onclick="sair()">
+        <div class="uav" id="uAv"></div>
+        <span class="unm" id="uNm"></span>
+        <span style="font-size:10px;color:var(--texto3)">▾</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="abar" id="aBar" style="display:none">
+    <span style="font-size:11px;font-weight:700;color:var(--laranja2)">🔔</span>
+    <div id="aLista" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    <button onclick="document.getElementById('aBar').style.display='none'" style="background:none;border:none;color:var(--texto3);cursor:pointer;margin-left:auto;font-size:16px">✕</button>
+  </div>
+
+  <div class="content" id="mainContent">
+    <div class="page on" id="page-dashboard"></div>
+    <div class="page" id="page-kanban"></div>
+    <div class="page" id="page-lista"></div>
+    <div class="page" id="page-novaOS"></div>
+    <div class="page" id="page-eletricos"></div>
+    <div class="page" id="page-panelas"></div>
+    <div class="page" id="page-clientes"></div>
+    <div class="page" id="page-garantias"></div>
+    <div class="page" id="page-whatsapp"></div>
+    <div class="page" id="page-relatorios"></div>
+  </div>
+
+  <!-- BOTTOM NAV MOBILE -->
+  <nav class="botomnav">
+    <button class="bnbtn on" onclick="ir('dashboard');bnavOn(this)"><span class="bnico">📊</span>Dashboard</button>
+    <button class="bnbtn" onclick="ir('kanban');bnavOn(this)"><span class="bnico">🗂️</span>Kanban</button>
+    <button class="bnbtn" onclick="ir('novaOS');bnavOn(this)" style="color:var(--laranja)">
+      <span class="bnico" style="background:linear-gradient(135deg,var(--laranja),var(--laranja2));border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;margin-top:-10px">➕</span>Nova OS
+    </button>
+    <button class="bnbtn" onclick="ir('lista');bnavOn(this)"><span class="bnico">📋</span>OSs</button>
+    <button class="bnbtn" onclick="ir('whatsapp');bnavOn(this)"><span class="bnico">💬</span>WA</button>
+  </nav>
+</div>
+
+<!-- MODAIS -->
+<div class="ov" id="ovOS" onclick="if(event.target===this)fechar('ovOS')">
+  <div class="modal" style="max-width:720px">
+    <div class="mhead">
+      <div class="mtitle" id="mOSt">OS #0000</div>
+      <div class="macoes">
+        <button class="btn btn-am btn-sm" id="mBtnEdit">✏️ Editar</button>
+        <button class="btn btn-vm btn-sm" id="mBtnDel">🗑️ Excluir</button>
+        <button class="btn btn-g btn-sm" onclick="imprimirOS()">🖨️</button>
+        <button class="btn btn-g btn-sm" onclick="imprimirEtq()">🏷️</button>
+        <button class="mclose" onclick="fechar('ovOS')">✕</button>
+      </div>
+    </div>
+    <div class="mbody" id="mOSb"></div>
+  </div>
+</div>
+
+<div class="ov" id="ovWA" onclick="if(event.target===this)fechar('ovWA')">
+  <div class="modal" style="max-width:460px">
+    <div class="mhead">
+      <div class="mtitle">💬 WhatsApp</div>
+      <button class="mclose" onclick="fechar('ovWA')">✕</button>
+    </div>
+    <div class="mbody" id="mWAb"></div>
+  </div>
+</div>
+
+<div class="ov" id="ovPrint" onclick="if(event.target===this)fechar('ovPrint')">
+  <div class="modal" style="max-width:680px;background:#fff;color:#000">
+    <div class="mhead" style="background:#fff;border-color:#ddd">
+      <div class="mtitle" style="color:#000">🖨️ Impressão</div>
+      <div class="macoes">
+        <button class="btn btn-p" onclick="window.print()">Imprimir / PDF</button>
+        <button class="mclose" style="background:#eee;color:#333" onclick="fechar('ovPrint')">✕</button>
+      </div>
+    </div>
+    <div class="mbody" id="mPrint" style="color:#000"></div>
+  </div>
+</div>
+
+<div id="toast">✅</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  BACKEND OFICIAL — GOOGLE SHEETS / APPS SCRIPT
+// ════════════════════════════════════════════════════════════════
+const APP_CONFIG = {
+  // Cole aqui a URL /exec do Apps Script publicado como aplicativo da Web.
+  APPS_SCRIPT_URL: ''
+};
+
+let backendOnline = false;
+let osEditando = null;
+
+async function backendGet(acao){
+  if(!APP_CONFIG.APPS_SCRIPT_URL) throw new Error('URL do Apps Script não configurada.');
+  const url = APP_CONFIG.APPS_SCRIPT_URL + (APP_CONFIG.APPS_SCRIPT_URL.includes('?')?'&':'?') + 'acao=' + encodeURIComponent(acao);
+  const r = await fetch(url, {cache:'no-store'});
+  const d = await r.json();
+  if(!d.ok) throw new Error(d.erro || 'Erro no Apps Script');
+  return d;
+}
+
+async function backendPost(payload){
+  if(!APP_CONFIG.APPS_SCRIPT_URL) throw new Error('URL do Apps Script não configurada.');
+  const r = await fetch(APP_CONFIG.APPS_SCRIPT_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(payload)
+  });
+  const d = await r.json();
+  if(!d.ok) throw new Error(d.erro || 'Erro no Apps Script');
+  return d;
+}
+
+function normalizarOSServidor(o){
+  o = o || {};
+  o.os = Number(o.os || 0);
+  o.itens = Array.isArray(o.itens) ? o.itens.map(i=>({
+    ap:i.ap||'',
+    servico:i.servico||'',
+    historico:i.historico||i.hist||'',
+    hist:i.historico||i.hist||i.servico||'',
+    val:Number(i.val)||0,
+    gar:Number(i.gar)||30
+  })) : [];
+  if(!o.itens.length) o.itens=[{ap:'',servico:'',historico:'',hist:'',val:0,gar:30}];
+  o.tel=(o.tel||'').replace(/\D/g,'');
+  return o;
+}
+
+async function carregarDoServidor(){
+  if(!APP_CONFIG.APPS_SCRIPT_URL) {
+    mostrarStatusBackend('🟡 Local');
+    return false;
+  }
+  try{
+    mostrarStatusBackend('🔄 Carregando');
+    const d=await backendGet('lista');
+    OS=(d.dados||[]).map(normalizarOSServidor);
+    salvarLocalSilencioso();
+    backendOnline=true;
+    mostrarStatusBackend('🟢 Planilha');
+    renderDash();
+    verificarAlertas();
+    return true;
+  }catch(e){
+    backendOnline=false;
+    mostrarStatusBackend('🟡 Offline');
+    console.warn('Apps Script:',e);
+    return false;
+  }
+}
+
+function mostrarStatusBackend(txt){
+  const e=document.getElementById('fbStatus');
+  if(e) e.textContent=txt;
+}
+
+function salvarLocalSilencioso(){ try{ localStorage.setItem(SK,JSON.stringify(OS)); }catch(e){} }
+
+// ════════════════════════════════════════════════════════════════
+//  DADOS
+// ════════════════════════════════════════════════════════════════
+const USUARIOS = [
+  { nome:'THAIS RANGEL',  senha:'1234', cargo:'Gestão',                        cor:'#F57518', em:'👩‍💼', admin:true,  setor:null,      ativo:true,  desc:'Acesso total ao sistema',
+    p:{ dash:true,  rel:true,  criarOS:true,  editarOS:true,  delOS:true,  status:true, fin:true, csv:true, print:true, wa:true,  cli:true,  gar:true,  todos:true,  obs:true  }},
+  { nome:'MÁRCIA',        senha:'1234', cargo:'Financeiro',                    cor:'#0A4A96', em:'👩‍💻', admin:false, setor:null,      ativo:true,  desc:'Acesso completo exceto exclusão',
+    p:{ dash:true,  rel:true,  criarOS:true,  editarOS:true,  delOS:false, status:true, fin:true, csv:true, print:true, wa:true,  cli:true,  gar:true,  todos:true,  obs:true  }},
+  { nome:'THAIS ALVES',   senha:'1234', cargo:'Auxiliar Administrativo',       cor:'#22C55E', em:'👩‍🔧', admin:false, setor:null,      ativo:true,  desc:'Registros, processos e comunicação',
+    p:{ dash:true,  rel:false, criarOS:true,  editarOS:true,  delOS:false, status:true, fin:true, csv:false, print:true, wa:true,  cli:true,  gar:true,  todos:true,  obs:true  }},
+  { nome:'ISACKSON JUNIO',senha:'1234', cargo:'Aux. Manutenção — Elétricos',   cor:'#2196F3', em:'👨‍🔧', admin:false, setor:'ELÉTRICOS',ativo:false, desc:'Execução — setor Elétricos',
+    p:{ dash:true,  rel:false, criarOS:false, editarOS:false, delOS:false, status:true, fin:false,csv:false, print:true, wa:false, cli:false, gar:false, todos:false, obs:true  }},
+  { nome:'WILGLER',       senha:'1234', cargo:'Aux. Manutenção — Panelas',     cor:'#22C55E', em:'🔧',    admin:false, setor:'PANELAS',  ativo:false, desc:'Execução — setor Panelas',
+    p:{ dash:true,  rel:false, criarOS:false, editarOS:false, delOS:false, status:true, fin:false,csv:false, print:true, wa:false, cli:false, gar:false, todos:false, obs:true  }},
+];
+
+let usuario = null;
+let userSel = null;
+
+let OS = [
+  {os:1641,cliente:"JANE ALVES",tel:"5531998327705",setor:"ELÉTRICOS",atendente:"MARCIA",itens:[{ap:"SECADOR",hist:"TOMADA",val:15,gar:30},{ap:"AIR FRYER",hist:"TOMADA",val:15,gar:30},{ap:"MICROONDAS",hist:"REVISÃO, PLUG, MEMBRANA",val:140,gar:30}],status:"PRONTO",entrada:"2025-06-26",entrega:"2025-07-26",entradaTaxa:20,respTecnico:"ISACKSON",dataAprovacao:"2025-06-27",prevOrc:"2025-07-05",prevOrcMin:120,garantiasOrdem:"30,30,30",obs:"Avisar cliente"},
+  {os:1972,cliente:"SIRLEY",tel:"5531997239119",setor:"ELÉTRICOS",atendente:"MARCIA",itens:[{ap:"FORNO ELÉTRICO SUGGAR",hist:"PARTE ELÉTRICA, TERMOSTATO, CHAVE",val:225,gar:30}],status:"PRONTO",entrada:"2025-08-07",entrega:"2025-09-06",obs:"Ligar para cliente"},
+  {os:2193,cliente:"EDER PADARIA",tel:"5537999145545",setor:"ELÉTRICOS",atendente:"LUCIENE",itens:[{ap:"CAFETEIRA INDUSTRIAL",hist:"TROCA RESISTÊNCIA",val:140,gar:30},{ap:"MICRO ONDAS ELECTROLUX",hist:"PROTETOR, MOTOR",val:165,gar:30}],status:"PRONTO",entrada:"2025-09-13",entrega:"2025-10-13",obs:"Padaria — ligar"},
+  {os:2469,cliente:"ELIANE",tel:"5531993780302",setor:"PANELAS",atendente:"LUCIENE",itens:[{ap:"TAMPA INDUSTRIAL",hist:"SELO, BORRACHA, PESO",val:80,gar:30},{ap:"PP INDUSTRIAL FULGOR",hist:"BORRACHA, DESEMPENO, ALÇAS",val:325,gar:30}],status:"PRONTO",entrada:"2025-11-03",entrega:"2025-11-18",obs:"Avisar ELIANE"},
+  {os:2578,cliente:"OFICINA DA PADARIA (LEO)",tel:"5531994009302",setor:"PANELAS",atendente:"LUCIENE",itens:[{ap:"6 PANELAS INDUSTRIAIS",hist:"SELOS, BORRACHA, ALÇAS, DESEMPENO",val:1768,gar:30}],status:"PRONTO",entrada:"2025-11-27",entrega:"2025-12-12",obs:"6 panelas prontas"},
+  {os:2849,cliente:"SONIA RESTAURANTE",tel:"5531997346849",setor:"PANELAS",atendente:"THAIS",itens:[{ap:"PP FI FULGOR",hist:"CABO, BORRACHA, SELOS",val:96,gar:30},{ap:"PP FE CLOCK",hist:"DESEMPENO, VÁLVULAS",val:63,gar:30}],status:"PRONTO",entrada:"2026-01-27",entrega:"2026-02-11",obs:"Restaurante"},
+  {os:1396,cliente:"LENILDA",tel:"5531982428383",setor:"ELÉTRICOS",atendente:"ISABELA",itens:[{ap:"VENTILADOR ARNO 30CM",hist:"RECUPERAÇÃO MOTOR",val:95,gar:30},{ap:"VENTILADOR ARNO 40CM",hist:"MOTOR, BUCHA",val:120,gar:30}],status:"AGUARDANDO PEÇA",entrada:"2025-05-21",entrega:"2025-06-20",obs:"Aguardando bucha Arno"},
+  {os:1729,cliente:"MARIANA",tel:"5531995313121",setor:"ELÉTRICOS",atendente:"ISABELA",itens:[{ap:"CAFETEIRA DOLCE GUSTO",hist:"TROCA DA PLACA",val:410,gar:60}],status:"AGUARDANDO PEÇA",entrada:"2025-07-08",entrega:"2025-08-07",obs:"Peça encomendada"},
+  {os:3008,cliente:"WEMERSON",tel:"5531999171552",setor:"ELÉTRICOS",atendente:"MARCIA",itens:[{ap:"FORNO ELÉTRICO FISHER",hist:"FIAÇÃO, TERMINAIS, TERMOSTATO",val:255,gar:30}],status:"AGUARDANDO PEÇA",entrada:"2026-02-28",entrega:"2026-03-30",obs:"Aguardando chave"},
+  {os:3185,cliente:"CIDA DA CAMARA",tel:"5531998724150",setor:"PANELAS",atendente:"MARCIA",itens:[{ap:"PP FE NIGRO ETERNA",hist:"DESEMPENO, SELOS, BORRACHA",val:82,gar:30}],status:"AGUARDANDO APROVAÇÃO",entrada:"2026-04-18",entrega:"2026-05-03",obs:"Aguardando retorno"},
+  {os:3094,cliente:"WELINGTON",tel:"5531994269133",setor:"ELÉTRICOS",atendente:"THAIS",itens:[{ap:"AIR FRYER CADENCE",hist:"REVISÃO, MOTOR, TERMOSTATO",val:185,gar:30}],status:"AGUARDANDO ORÇAMENTO",entrada:"2026-03-20",entrega:"2026-04-19",obs:"Aguardando aprovação"},
+  {os:1880,cliente:"OFICINA DA PADARIA",tel:"553188888888",setor:"PANELAS",atendente:"TAMIRES",itens:[{ap:"7 PANELAS INDUSTRIAIS",hist:"CONSERTO COMPLETO",val:1700,gar:30}],status:"ENTREGUE",entrada:"2025-07-28",entrega:"2025-08-04",obs:""},
+  {os:1802,cliente:"ALESSANDRA",tel:"5531987449091",setor:"ELÉTRICOS",atendente:"THAIS",itens:[{ap:"AIR FRYER GF",hist:"RESISTÊNCIA, CHAVES, MOTOR",val:275,gar:30},{ap:"AIR FRYER 2",hist:"REVISÃO, PLUG",val:92,gar:30}],status:"ENTREGUE",entrada:"2025-07-15",entrega:"2025-08-14",obs:""},
+  {os:2337,cliente:"THAÍS",tel:"5531993665114",setor:"PANELAS",atendente:"MARCIA",itens:[{ap:"PP INDUSTRIAL FULGOR",hist:"2 SELOS, DESEMPENO, BORRACHA, ALÇAS",val:506,gar:30}],status:"ENTREGUE",entrada:"2025-10-09",entrega:"2025-10-24",obs:""},
+  {os:2698,cliente:"MARCO ANTONIO",tel:"5531991949748",setor:"MICROONDAS",atendente:"MARCIA",itens:[{ap:"MICROONDAS PHILCO PM033B",hist:"MAGNETRON, CAPACITOR, FUSÍVEL",val:255,gar:60}],status:"ENTREGUE",entrada:"2025-12-22",entrega:"2026-01-06",obs:"Garantia 60 dias"},
+  {os:3141,cliente:"OFICINA DA PADARIA (LEO)",tel:"5531994009302",setor:"PANELAS",atendente:"THAIS",itens:[{ap:"5 PP FE INDUSTRIAL",hist:"SELOS, DESEMPENO, ALÇAS",val:1160,gar:30}],status:"ENTREGUE",entrada:"2026-04-08",entrega:"2026-04-23",obs:""},
+  {os:2064,cliente:"LIELSON",tel:"5531993314187",setor:"ELÉTRICOS",atendente:"THAIS",itens:[{ap:"MICROONDAS CONSUL",hist:"PRATO, CAPACITOR, MOTOR",val:340,gar:0}],status:"DESCARTE",entrada:"2025-08-22",entrega:"2025-09-21",obs:"Cliente solicitou descarte"},
+  {os:3199,cliente:"CLEIDE FERREIRA",tel:"5531993928648",setor:"PANELAS",atendente:"MARCIA",itens:[{ap:"CANECO VERMELHO",hist:"CABO NOVO",val:14,gar:30}],status:"PRONTO",entrada:"2026-04-23",entrega:"2026-04-30",obs:""},
+];
+
+
+// ════════════════════════════════════════════
+//  BUSCA DE CLIENTE POR TELEFONE
+// ════════════════════════════════════════════
+function buscarClientePorTel(tel) {
+  const t = tel.replace(/\D/g,'');
+  if (t.length < 8) return;
+
+  // Buscar nas OSs existentes
+  const encontrado = OS.find(o => {
+    const ot = (o.tel||'').replace(/\D/g,'');
+    return ot.endsWith(t) || t.endsWith(ot.slice(-8));
+  });
+
+  const fCli = document.getElementById('fCli');
+  const aviso = document.getElementById('avisoCliente');
+
+  if (encontrado) {
+    fCli.value = encontrado.cliente;
+    fCli.style.borderColor = 'var(--verde)';
+    if (aviso) {
+      aviso.innerHTML = `✅ Cliente encontrado: <b>${encontrado.cliente}</b> — ${OS.filter(o=>(o.tel||'').replace(/\D/g,'').endsWith(t.slice(-8))).length} OS(s) anteriores`;
+      aviso.style.color = 'var(--verde)';
+    }
+  } else if (t.length >= 10) {
+    fCli.style.borderColor = 'var(--amarelo)';
+    if (aviso) {
+      aviso.innerHTML = '⚠️ Novo cliente — será cadastrado automaticamente';
+      aviso.style.color = 'var(--amarelo)';
+    }
+  }
+}
+
+// ════════════════════════════════════════════
+//  SINCRONIZAR CLIENTE
+//  A O.S. é gravada pelo Apps Script na base oficial.
+// ════════════════════════════════════════════
+function sincronizarCliente(os){
+  // Cadastro será alimentado pelo Apps Script quando a O.S. for gravada.
+  // Mantemos a função para não quebrar chamadas antigas da interface.
+  salvarLocalSilencioso();
+}
+
+// Geração local é apenas visual/fallback. A numeração oficial é do Apps Script.
+function gerarNumeroOS(){
+  return Promise.resolve(Math.max(...OS.map(o=>Number(o.os)||0),3199)+1);
+}
+
+// ── HELPERS ──────────────────────────────────────────────────────────
+const R = v => `R$ ${(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}`;
+const fD = d => { if(!d) return '—'; const p=d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; };
+const totOS = o => o.itens.reduce((s,i)=>s+(+i.val||0),0);
+const isE = o => ['ELÉTRICOS','MICROONDAS','LIQUIDIFICADORES','SERVIÇOS'].includes(o.setor);
+const isP = o => ['PANELAS','OUTROS'].includes(o.setor);
+const dias = d => Math.round((new Date()-new Date(d))/864e5);
+const proxOS = () => Math.max(...OS.map(o=>o.os),3199)+1;
+
+function sN(s){
+  s=(s||'').toUpperCase().trim();
+  if(s.includes('ENTREGUE')) return 'E';
+  if(s.includes('PRONTO')) return 'P';
+  if(s.includes('CANCELADO')) return 'C';
+  if(s.includes('DESCARTE')) return 'D';
+  if(s.includes('NÃO APROVADO')||s.includes('NAO APROVADO')) return 'NA';
+  if(s.includes('PEÇA')||s.includes('PECA')) return 'PC';
+  if(s.includes('APROVAÇÃO')||s.includes('APROVACAO')) return 'AP';
+  return 'A';
+}
+const SLABEL = {E:'✅ Entregue',P:'🔵 Pronto',A:'🟡 Aguardando',AP:'🟣 Ag. Aprovação',NA:'🟠 N/Aprovado',C:'⚫ Cancelado',D:'🔴 Descarte',PC:'🔧 Ag. Peça'};
+const chip = s => { const n=sN(s); return `<span class="chip ch-${n}">${SLABEL[n]||s}</span>`; };
+const tagS = o => isE(o)?`<span class="te">⚡${o.setor.slice(0,5)}</span>`:`<span class="tp">🫕Panela</span>`;
+const p = () => usuario?.p || {};
+
+
+// ════════════════════════════════════════════
+//  PRAZOS DE ENTREGA POR SETOR
+// ════════════════════════════════════════════
+const PRAZOS = {
+  'ELÉTRICOS':         30,
+  'MICROONDAS':        30,
+  'SERVIÇOS':          30,
+  'LIQUIDIFICADORES':  20,
+  'PANELAS':           10,
+  'OUTROS':            10,
+};
+
+function calcularEntrega(setor, dataEntrada) {
+  const prazo = PRAZOS[setor] || 15;
+  const d = new Date(dataEntrada);
+  d.setDate(d.getDate() + prazo);
+  return d.toISOString().split('T')[0];
+}
+
+function atualizarPrazoEntrega() {
+  const setor  = document.getElementById('fSet')?.value || 'ELÉTRICOS';
+  const data   = document.getElementById('fData')?.value;
+  const fEnt   = document.getElementById('fEnt');
+  if (fEnt && data) {
+    fEnt.value = calcularEntrega(setor, data);
+    const prazo = PRAZOS[setor] || 15;
+    const lblPrazo = document.getElementById('lblPrazo');
+    if (lblPrazo) lblPrazo.textContent = `(${prazo} dias para ${setor})`;
+  }
+}
+
+// ── PERSISTÊNCIA ──────────────────────────────────────────────────────
+const SK = 'pontodosf_v3';
+function salvar(){ try{ localStorage.setItem(SK,JSON.stringify(OS)); mostrarSalvo(); }catch(e){} }
+function carregar(){ try{ const d=localStorage.getItem(SK); if(d){ const r=JSON.parse(d); if(Array.isArray(r)&&r.length>0){ OS=r.map(normalizarOSServidor); return true; } }}catch(e){} return false; }
+function mostrarSalvo(){ const e=document.getElementById('fbStatus'); if(e){e.textContent=backendOnline?'🟢 Planilha':'💾 Local';setTimeout(()=>{ if(e) e.textContent=backendOnline?'🟢 Planilha':'⚪'; },1500);} }
+
+// ── LOGIN ──────────────────────────────────────────────────────────────
+function initLogin(){
+  const el = document.getElementById('perfisLista');
+  el.innerHTML = USUARIOS.map(u => {
+    const in_ = u.ativo===false;
+    return `<div class="perfil-btn${in_?' inativo':''}"
+      onclick="${in_?'':'selU(\''+u.nome+'\',this)'}"
+      id="pb_${u.nome.replace(/\s/g,'_')}">
+      <div class="perfil-avatar" style="background:${u.cor}22;border:2px solid ${in_?u.cor+'44':u.cor}">${u.em}</div>
+      <div>
+        <div class="perfil-nome">${u.nome}</div>
+        <div class="perfil-cargo">${u.cargo}</div>
+      </div>
+      ${u.admin?`<span class="perfil-tag" style="background:rgba(245,117,24,.15);color:#FF8E11">ADMIN</span>`:''}
+      ${in_?`<span class="perfil-tag" style="background:rgba(245,158,11,.12);color:#F59E0B">EM BREVE</span>`:''}
+    </div>`;
+  }).join('');
+}
+
+function selU(nome, el){
+  userSel = nome;
+  document.querySelectorAll('.perfil-btn').forEach(b=>{
+    b.classList.remove('selecionado');
+  });
+  el.classList.add('selecionado');
+  document.getElementById('senhaInput').focus();
+}
+
+function entrar(){
+  const u = USUARIOS.find(x=>x.nome===userSel);
+  const senha = document.getElementById('senhaInput').value;
+  const err = document.getElementById('erroLogin');
+  if(!u){ err.textContent='Selecione seu perfil primeiro'; return; }
+  if(u.ativo===false){ err.textContent='Este perfil ainda não está ativo'; return; }
+  if(senha!==u.senha){ err.textContent='Senha incorreta'; return; }
+  err.textContent='';
+  usuario = u;
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('visivel');
+  document.getElementById('uAv').textContent=u.em;
+  document.getElementById('uAv').style.background=u.cor+'33';
+  document.getElementById('uNm').textContent=u.nome.split(' ')[0];
+  buildNav();
+  carregar();
+  renderDash();
+  verificarAlertas();
+  setInterval(verificarAlertas,30000);
+}
+
+function sair(){ if(confirm('Sair?')) location.reload(); }
+
+// ── NAVEGAÇÃO ──────────────────────────────────────────────────────────
+const NAVITENS = [
+  {id:'dashboard', ico:'📊', lbl:'Dashboard', perm:null},
+  {id:'kanban',    ico:'🗂️', lbl:'Kanban',    perm:null},
+  {id:'lista',     ico:'📋', lbl:'OSs',        perm:null},
+  {id:'novaOS',    ico:'➕', lbl:'Nova OS',     perm:'criarOS'},
+  {id:'eletricos', ico:'⚡', lbl:'Elétricos',  perm:null},
+  {id:'panelas',   ico:'🫕', lbl:'Panelas',    perm:null},
+  {id:'clientes',  ico:'👥', lbl:'Clientes',   perm:'cli'},
+  {id:'garantias', ico:'🛡️', lbl:'Garantias',  perm:'gar'},
+  {id:'whatsapp',  ico:'💬', lbl:'WhatsApp',   perm:'wa'},
+  {id:'relatorios',ico:'📈', lbl:'Relatórios', perm:'rel'},
+];
+
+function buildNav(){
+  const nav = document.getElementById('topNav');
+  nav.innerHTML = NAVITENS
+    .filter(n => !n.perm || p()[n.perm])
+    .map(n=>`<button class="tbtn${n.id==='dashboard'?' on':''}" onclick="ir('${n.id}')" id="tb_${n.id}">
+      <span class="tico">${n.ico}</span><span>${n.lbl}</span>
+    </button>`).join('');
+}
+
+function ir(pg){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.tbtn').forEach(x=>x.classList.remove('on'));
+  const p_ = document.getElementById('page-'+pg);
+  if(p_) p_.classList.add('on');
+  const b = document.getElementById('tb_'+pg);
+  if(b) b.classList.add('on');
+  const R = {dashboard:renderDash,kanban:renderKanban,lista:renderLista,novaOS:initNovaOS,eletricos:()=>renderSetor('e'),panelas:()=>renderSetor('p'),clientes:renderClientes,garantias:renderGarantias,whatsapp:renderWA,relatorios:renderRel};
+  if(R[pg]) R[pg]();
+}
+
+function bnavOn(el){ document.querySelectorAll('.bnbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); }
+
+// ── ALERTAS ────────────────────────────────────────────────────────────
+function verificarAlertas(){
+  const prontas = OS.filter(o=>sN(o.status)==='P');
+  const urg = prontas.filter(o=>dias(o.entrada)>5);
+  document.title = prontas.length>0?`(${prontas.length}) Ponto dos Fogões`:'Ponto dos Fogões';
+  const bar = document.getElementById('aBar');
+  const lista = document.getElementById('aLista');
+  const alertas = [];
+  if(prontas.length) alertas.push(`🔵 ${prontas.length} pronta${prontas.length>1?'s':''} p/ retirada`);
+  if(urg.length) alertas.push(`⚠️ ${urg.length} prontas há +5 dias`);
+  if(alertas.length){
+    bar.style.display='flex';
+    lista.innerHTML = alertas.map((a,i)=>`<span class="aitem${i===1?' urg':''}">${a}</span>`).join('');
+    if(urg.length) tocarSom();
+  } else { bar.style.display='none'; }
+}
+function tocarSom(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [440,554,659].forEach((f,i)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value=f; g.gain.setValueAtTime(.12,ctx.currentTime+i*.15);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+i*.15+.25);
+      o.start(ctx.currentTime+i*.15); o.stop(ctx.currentTime+i*.15+.3);
+    });
+  }catch(e){}
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────────────────
+function renderDash(){
+  const h = new Date().getHours();
+  const sg = h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
+  const tot=OS.length, ent=OS.filter(o=>sN(o.status)==='E').length;
+  const pron=OS.filter(o=>sN(o.status)==='P').length;
+  const pend=OS.filter(o=>!['E','C','D'].includes(sN(o.status))).length;
+  const fat=OS.reduce((s,o)=>s+totOS(o),0);
+
+  const pg = document.getElementById('page-dashboard');
+  pg.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div><div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800">Dashboard</div>
+        <div style="font-size:12px;color:var(--texto3);margin-top:2px">${sg}, ${usuario?.nome.split(' ')[0]}!</div></div>
+      <div style="display:flex;gap:8px">
+        ${p().csv?`<button class="btn btn-g btn-sm" onclick="exportCSV()">⬇️ CSV</button>`:''}
+        ${p().criarOS?`<button class="btn btn-p" onclick="ir('novaOS')">+ Nova OS</button>`:''}
+      </div>
+    </div>
+    <div class="stats">
+      ${[
+        ['📋',tot,'Total OSs','var(--laranja)',`ir('lista')`],
+        ['✅',ent,'Entregues','var(--verde)',`ir('lista')`],
+        ['🔵',pron,'Prontas','#7BA7F5',`ir('kanban')`],
+        ['⏳',pend,'Pendentes','var(--amarelo)',`ir('kanban')`],
+        p().fin?['💰',R(fat),'Faturamento','var(--laranja2)',`ir('relatorios')`]:null,
+        ['⚡',OS.filter(o=>isE(o)).length,'Elétricos','#7BA7F5',`ir('eletricos')`],
+        ['🫕',OS.filter(o=>isP(o)).length,'Panelas','var(--verde)',`ir('panelas')`],
+      ].filter(Boolean).map(([ic,vl,lb,ac,fn])=>`
+        <div class="sc" style="--acc:${ac}" onclick="${fn}">
+          <div class="sc-ico">${ic}</div>
+          <div class="sc-val">${vl}</div>
+          <div class="sc-lbl">${lb}</div>
+        </div>`).join('')}
+    </div>
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="ctitle">💰 Faturamento por Mês</div>
+        <div id="dFat"></div>
+      </div>
+      <div class="card">
+        <div class="ctitle">📌 Por Status</div>
+        <div id="dSt"></div>
+      </div>
+    </div>
+    <div class="tw">
+      <div class="ttbar" style="justify-content:space-between">
+        <span style="font-size:12px;font-weight:700;color:var(--laranja2)">🔔 Prontas para Notificar</span>
+        <button class="btn btn-vd btn-sm" onclick="notifTodas()">📱 Notificar Todas</button>
+      </div>
+      <table><thead><tr>
+        <th>OS</th><th>Cliente</th><th>Setor</th><th>Aparelho</th><th>Valor</th><th>Dias</th><th>Ações</th>
+      </tr></thead>
+      <tbody>${OS.filter(o=>sN(o.status)==='P').map(o=>`
+        <tr onclick="abrirOS(${o.os})">
+          <td class="td-os">#${o.os}</td>
+          <td class="td-nm">${o.cliente}</td>
+          <td>${tagS(o)}</td>
+          <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.itens[0]?.ap||'—'}</td>
+          <td class="td-val">${R(totOS(o))}</td>
+          <td style="color:${dias(o.entrada)>5?'var(--vermelho)':'var(--texto3)'};font-weight:700">${dias(o.entrada)}d</td>
+          <td onclick="event.stopPropagation()" style="white-space:nowrap">
+            <button class="btn btn-wa btn-xs" onclick="abrirWA(${o.os},'pronto')">📱</button>
+            <button class="btn btn-vd btn-xs" onclick="markEnt(${o.os})">✅</button>
+          </td>
+        </tr>`).join('')||'<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--texto3)">Nenhuma OS pronta 🎉</td></tr>'}
+      </tbody></table>
+    </div>`;
+
+  // Fat mensal
+  const fm={};
+  OS.forEach(o=>{ const [y,m]=o.entrada.split('-'); const k=`${m}/${y.slice(2)}`; fm[k]=(fm[k]||0)+totOS(o); });
+  const ms=Object.keys(fm).sort().slice(-8), mx=Math.max(...ms.map(m=>fm[m]),1);
+  document.getElementById('dFat').innerHTML=ms.map(m=>`
+    <div class="fatrow"><span style="font-size:12px;font-weight:600">${m}</span>
+    <div style="flex:1;margin:0 10px"><div class="bartr"><div class="barfl" style="width:${fm[m]/mx*100}%"></div></div></div>
+    <span style="font-family:Syne,sans-serif;font-size:12px;font-weight:800;color:var(--laranja2)">${R(fm[m])}</span></div>`).join('');
+
+  // Status
+  const sc={};
+  OS.forEach(o=>{ const n=sN(o.status); sc[n]=(sc[n]||0)+1; });
+  const mx2=Math.max(...Object.values(sc),1);
+  document.getElementById('dSt').innerHTML=Object.entries(sc).map(([s,c])=>`
+    <div class="bar"><span class="barlbl" style="font-size:10px">${SLABEL[s]?.slice(0,11)||s}</span>
+    <div class="bartr"><div class="barfl" style="width:${c/mx2*100}%"></div></div>
+    <span class="barval">${c}</span></div>`).join('');
+}
+
+function notifTodas(){
+  const pr=OS.filter(o=>sN(o.status)==='P');
+  if(!pr.length){ toast('Nenhuma OS pronta'); return; }
+  if(!confirm(`Abrir WhatsApp para ${pr.length} clientes?`)) return;
+  pr.forEach((o,i)=>setTimeout(()=>window.open(waLink(o,'pronto'),'_blank'),i*350));
+}
+function markEnt(n){
+  const o=OS.find(x=>x.os===n); if(!o) return;
+  if(!confirm(`Marcar OS #${n} — ${o.cliente} como ENTREGUE?`)) return;
+  o.status='ENTREGUE'; salvar(); renderDash(); verificarAlertas();
+  toast(`✅ OS #${n} entregue!`);
+}
+
+// ── KANBAN ──────────────────────────────────────────────────────────────
+const KCOLS=[
+  {id:'A',  label:'Aguardando',     cor:'#F59E0B'},
+  {id:'AP', label:'Ag. Aprovação',  cor:'#8B5CF6'},
+  {id:'PC', label:'Ag. Peça',       cor:'#14B8A6'},
+  {id:'P',  label:'Pronto',         cor:'#3B82F6'},
+  {id:'E',  label:'Entregue',       cor:'#22C55E'},
+];
+const SMAP={'A':'AGUARDANDO ORÇAMENTO','AP':'AGUARDANDO APROVAÇÃO','PC':'AGUARDANDO PEÇA','P':'PRONTO','E':'ENTREGUE'};
+let kFiltro='todos', dragN=null;
+
+function renderKanban(){
+  let d=OS.filter(o=>!['C','D','NA'].includes(sN(o.status)));
+  if(kFiltro==='e') d=d.filter(o=>isE(o));
+  if(kFiltro==='p') d=d.filter(o=>isP(o));
+
+  document.getElementById('page-kanban').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div><div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800">Kanban</div>
+        <div style="font-size:12px;color:var(--texto3)">Arraste para mudar o status</div></div>
+      <div style="display:flex;gap:4px;background:var(--bg1);padding:4px;border-radius:8px;border:1px solid var(--borda)">
+        <button class="pill${kFiltro==='todos'?' on':''}" onclick="kFiltro='todos';renderKanban()">🔥 Todos</button>
+        <button class="pill${kFiltro==='e'?' on':''}" onclick="kFiltro='e';renderKanban()">⚡ Eletros</button>
+        <button class="pill${kFiltro==='p'?' on':''}" onclick="kFiltro='p';renderKanban()">🫕 Panelas</button>
+      </div>
+    </div>
+    <div class="kanban">${KCOLS.map(col=>{
+      const cards=d.filter(o=>sN(o.status)===col.id);
+      return `<div class="kcol">
+        <div class="khead" style="--kc:${col.cor}">
+          <span class="khtitle" style="--kc:${col.cor}">${col.label}</span>
+          <span class="khcnt">${cards.length}</span>
+        </div>
+        <div class="kbody" data-st="${col.id}"
+          ondragover="event.preventDefault();this.classList.add('dov')"
+          ondragleave="this.classList.remove('dov')"
+          ondrop="dropK(event,'${col.id}')">
+          ${cards.map(o=>`
+            <div class="kcard" draggable="true" style="--kc:${col.cor}"
+              ondragstart="dragN=${o.os};this.classList.add('drag')"
+              ondragend="this.classList.remove('drag')"
+              onclick="abrirOS(${o.os})">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span class="kc-num">#${o.os}</span>${tagS(o)}
+              </div>
+              <div class="kc-cli">${o.cliente}</div>
+              <div class="kc-item">${o.itens.map(i=>i.ap).join(', ').slice(0,55)}</div>
+              <div class="kc-ft">
+                <span class="kc-data">${fD(o.entrada)}</span>
+                <span class="kc-val">${R(totOS(o))}</span>
+              </div>
+              <div class="kc-btns" onclick="event.stopPropagation()">
+                <button class="btn btn-wa btn-xs" onclick="abrirWA(${o.os})">📱</button>
+                ${p().editarOS?`<button class="btn btn-g btn-xs" onclick="editarOS(${o.os})">✏️</button>`:''}
+                ${col.id==='P'?`<button class="btn btn-vd btn-xs" onclick="markEnt(${o.os})">✅</button>`:''}
+              </div>
+            </div>`).join('')||`<div style="text-align:center;padding:20px;color:var(--texto3);font-size:11px">Sem OSs</div>`}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+}
+
+function dropK(e,st){
+  e.preventDefault(); e.currentTarget.classList.remove('dov');
+  if(!dragN) return;
+  const o=OS.find(x=>x.os===dragN);
+  if(o){ o.status=SMAP[st]||st; salvar(); renderKanban(); verificarAlertas(); toast(`✅ OS #${dragN} → ${SMAP[st]}`); }
+  dragN=null;
+}
+
+// ── LISTA ───────────────────────────────────────────────────────────────
+let fSt='TODOS', pag=1, desc=true;
+const PPG=15;
+
+function renderLista(){
+  const pg = document.getElementById('page-lista');
+  pg.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div><div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800">Ordens de Serviço</div></div>
+      <div style="display:flex;gap:8px">
+        ${p().csv?`<button class="btn btn-g btn-sm" onclick="exportCSV()">⬇️ CSV</button>`:''}
+        ${p().criarOS?`<button class="btn btn-p" onclick="ir('novaOS')">+ Nova OS</button>`:''}
+      </div>
+    </div>
+    <div class="tw">
+      <div class="ttbar">
+        <div class="busca"><span style="color:var(--texto3)">🔍</span>
+          <input type="text" id="bLista" placeholder="OS, cliente, aparelho..." oninput="pag=1;renderLista()">
+        </div>
+        <button class="pill on" onclick="fSt='TODOS';pag=1;renderLista();setP(this)">Todos</button>
+        <button class="pill" onclick="fSt='P';pag=1;renderLista();setP(this)">✅ Pronto</button>
+        <button class="pill" onclick="fSt='A';pag=1;renderLista();setP(this)">⏳ Aguard.</button>
+        <button class="pill" onclick="fSt='E';pag=1;renderLista();setP(this)">📦 Entregue</button>
+        <button class="pill" onclick="fSt='NA';pag=1;renderLista();setP(this)">🟠 N/Ap.</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table><thead><tr>
+          <th>OS</th><th>Cliente</th><th>Setor</th><th>Aparelho</th>
+          <th>Atendente</th><th>Entrada</th><th>Status</th><th>Valor</th><th>Ações</th>
+        </tr></thead>
+        <tbody id="tbLista"></tbody></table>
+      </div>
+      <div class="tfoot">
+        <span class="tinfo" id="tInfo"></span>
+        <div class="tpags" id="tPag"></div>
+      </div>
+    </div>`;
+  atualizarLista();
+}
+
+function setP(el){ document.querySelectorAll('#page-lista .pill').forEach(b=>b.classList.remove('on')); el.classList.add('on'); }
+
+function getDados(){
+  const q=(document.getElementById('bLista')?.value||'').toLowerCase();
+  return OS.filter(o=>{
+    const n=sN(o.status);
+    const ms=fSt==='TODOS'||n===fSt||(fSt==='A'&&['A','PC','AP'].includes(n));
+    const mq=!q||o.cliente.toLowerCase().includes(q)||String(o.os).includes(q)||o.itens.some(i=>i.ap.toLowerCase().includes(q));
+    return ms&&mq;
+  }).sort((a,b)=>desc?b.os-a.os:a.os-b.os);
+}
+
+function atualizarLista(){
+  const d=getDados(), tot=d.length, totP=Math.ceil(tot/PPG)||1;
+  pag=Math.min(pag,totP);
+  const sl=d.slice((pag-1)*PPG,pag*PPG);
+  const tb=document.getElementById('tbLista');
+  const ti=document.getElementById('tInfo');
+  const tp=document.getElementById('tPag');
+  if(!tb) return;
+  ti.textContent=`${tot} OSs — pág. ${pag}/${totP}`;
+  tb.innerHTML=sl.map(o=>`
+    <tr onclick="abrirOS(${o.os})">
+      <td class="td-os">#${o.os}</td>
+      <td class="td-nm">${o.cliente}</td>
+      <td>${tagS(o)}</td>
+      <td style="max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.itens.map(i=>i.ap).join(', ').slice(0,40)}</td>
+      <td style="font-size:11px;color:var(--texto3)">${o.atendente||'—'}</td>
+      <td style="font-size:11px;color:var(--texto3)">${fD(o.entrada)}</td>
+      <td>${chip(o.status)}</td>
+      <td class="td-val">${R(totOS(o))}</td>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap">
+        <button class="btn btn-wa btn-xs" onclick="abrirWA(${o.os})">📱</button>
+        <button class="btn btn-g btn-xs" onclick="abrirOS(${o.os})">👁️</button>
+        ${p().editarOS?`<button class="btn btn-am btn-xs" onclick="editarOS(${o.os})">✏️</button>`:''}
+        ${sN(o.status)==='P'?`<button class="btn btn-vd btn-xs" onclick="markEnt(${o.os})">✅</button>`:''}
+      </td>
+    </tr>`).join('')||'<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--texto3)">Nenhuma OS encontrada</td></tr>';
+  tp.innerHTML='';
+  for(let i=Math.max(1,pag-2);i<=Math.min(totP,pag+2);i++){
+    const b=document.createElement('button'); b.className=`tpbtn${i===pag?' on':''}`;
+    b.textContent=i; b.onclick=()=>{pag=i;atualizarLista();}; tp.appendChild(b);
+  }
+}
+
+// ── SETOR ────────────────────────────────────────────────────────────────
+function renderSetor(tipo){
+  const isE_=tipo==='e';
+  const d=OS.filter(o=>isE_?isE(o):isP(o));
+  const fat=d.reduce((s,o)=>s+totOS(o),0);
+  const pg=document.getElementById(isE_?'page-eletricos':'page-panelas');
+  pg.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div><div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800">${isE_?'⚡ Eletrodomésticos':'🫕 Panelas & Utensílios'}</div></div>
+      ${p().criarOS?`<button class="btn btn-p" onclick="ir('novaOS')">+ Nova OS</button>`:''}
+    </div>
+    <div class="stats" style="margin-bottom:16px">
+      ${[[isE_?'⚡':'🫕',d.length,'Total','var(--laranja)'],
+         ['💰',R(fat),'Faturamento','var(--laranja2)'],
+         ['🔵',d.filter(o=>sN(o.status)==='P').length,'Prontas','#7BA7F5'],
+         ['✅',d.filter(o=>sN(o.status)==='E').length,'Entregues','var(--verde)'],
+         ['⏳',d.filter(o=>['A','PC','AP'].includes(sN(o.status))).length,'Aguardando','var(--amarelo)'],
+        ].map(([i,v,l,a])=>`<div class="sc" style="--acc:${a}"><div class="sc-ico">${i}</div><div class="sc-val">${v}</div><div class="sc-lbl">${l}</div></div>`).join('')}
+    </div>
+    <div class="tw">
+      <div class="ttbar">
+        <div class="busca"><span style="color:var(--texto3)">🔍</span>
+          <input type="text" id="b${tipo}" placeholder="Buscar..." oninput="renderSetor('${tipo}')">
+        </div>
+      </div>
+      <table><thead><tr><th>OS</th><th>Cliente</th><th>Aparelho</th><th>Atendente</th><th>Status</th><th>Valor</th><th>Ações</th></tr></thead>
+      <tbody>${(()=>{
+        const q=(document.getElementById('b'+tipo)?.value||'').toLowerCase();
+        const f=q?d.filter(o=>o.cliente.toLowerCase().includes(q)||o.itens.some(i=>i.ap.toLowerCase().includes(q))):d;
+        return f.map(o=>`
+          <tr onclick="abrirOS(${o.os})">
+            <td class="td-os">#${o.os}</td>
+            <td class="td-nm">${o.cliente}</td>
+            <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.itens.map(i=>i.ap).join(', ').slice(0,40)}</td>
+            <td style="font-size:11px;color:var(--texto3)">${o.atendente||'—'}</td>
+            <td>${chip(o.status)}</td>
+            <td class="td-val">${R(totOS(o))}</td>
+            <td onclick="event.stopPropagation()" style="white-space:nowrap">
+              <button class="btn btn-wa btn-xs" onclick="abrirWA(${o.os})">📱</button>
+              <button class="btn btn-g btn-xs" onclick="abrirOS(${o.os})">👁️</button>
+              ${p().editarOS?`<button class="btn btn-am btn-xs" onclick="editarOS(${o.os})">✏️</button>`:''}
+              ${sN(o.status)==='P'?`<button class="btn btn-vd btn-xs" onclick="markEnt(${o.os})">✅</button>`:''}
+            </td>
+          </tr>`).join('')||'<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--texto3)">Nenhuma OS</td></tr>';
+      })()}</tbody></table>
+    </div>`;
+}
+
+// ── DETALHE OS ────────────────────────────────────────────────────────────
+let osAtual=null;
+function abrirOS(n){
+  const o=OS.find(x=>x.os===n); if(!o) return;
+  osAtual=n;
+  document.getElementById('mOSt').innerHTML=`<span style="color:var(--laranja)">#${o.os}</span> — ${o.cliente}`;
+  document.getElementById('mBtnEdit').onclick=()=>editarOS(n);
+  document.getElementById('mBtnDel').onclick=()=>delOS(n);
+  document.getElementById('mBtnEdit').style.display=p().editarOS?'':'none';
+  document.getElementById('mBtnDel').style.display=p().delOS?'':'none';
+
+  const sn=sN(o.status);
+  const tipoWA=sn==='P'?'pronto':sn==='NA'?'nao_aprovado':'orcamento';
+  const msg=montarMsg(o,tipoWA);
+
+  document.getElementById('mOSb').innerHTML=`
+    <div class="ig">
+      <div class="igitem"><div class="igk">Cliente</div><div class="igv">${o.cliente}</div></div>
+      <div class="igitem"><div class="igk">Telefone</div><div class="igv">${o.tel||'—'}</div></div>
+      <div class="igitem"><div class="igk">Setor</div><div class="igv">${tagS(o)} ${o.setor}</div></div>
+      <div class="igitem"><div class="igk">Atendente</div><div class="igv">${o.atendente||'—'}</div></div>
+      <div class="igitem"><div class="igk">Entrada</div><div class="igv">${fD(o.entrada)}</div></div>
+      <div class="igitem"><div class="igk">Entrega</div><div class="igv">${fD(o.entrega)}</div></div>
+      <div class="igitem"><div class="igk">Garantia</div><div class="igv">${o.itens[0]?.gar||30} dias</div></div>
+      <div class="igitem"><div class="igk">Valor Total</div><div class="igv" style="font-family:Syne,sans-serif;font-weight:800;font-size:16px;color:var(--laranja2)">${R(totOS(o))}</div></div>
+      ${o.entradaTaxa?`<div class="igitem"><div class="igk">💰 Entrada / Taxa</div><div class="igv" style="color:var(--verde);font-weight:700">${R(o.entradaTaxa)}</div></div>`:''}
+      ${o.respTecnico?`<div class="igitem"><div class="igk">👨‍🔧 Resp. Técnico</div><div class="igv">${o.respTecnico}</div></div>`:''}
+      ${o.dataAprovacao?`<div class="igitem"><div class="igk">📅 Data Aprovação</div><div class="igv">${fD(o.dataAprovacao)}</div></div>`:''}
+      ${o.prevOrc?`<div class="igitem"><div class="igk">📅 Prev. Orçamento</div><div class="igv">${fD(o.prevOrc)}</div></div>`:''}
+      ${o.prevOrcMin?`<div class="igitem"><div class="igk">💲 Prev. Min. Orc.</div><div class="igv">${R(o.prevOrcMin)}</div></div>`:''}
+      ${o.garantiasOrdem?`<div class="igitem"><div class="igk">🛡️ Garantias (ordem)</div><div class="igv">${o.garantiasOrdem}</div></div>`:''}
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--texto3);margin-bottom:8px">🔧 Itens</div>
+      ${o.itens.map((it,i)=>`
+        <div class="iln">
+          <div class="iln-n">${i+1}</div>
+          <div style="flex:1"><div class="iln-ap">${it.ap}</div>${it.hist?`<div class="iln-ht">${it.hist}</div>`:''}</div>
+          <div class="iln-vl">${R(it.val)}</div>
+        </div>`).join('')}
+    </div>
+    ${p().status?`
+    <div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--texto3);margin-bottom:8px">📌 Atualizar Status</div>
+      <div class="spills">
+        ${['AGUARDANDO ORÇAMENTO','AGUARDANDO APROVAÇÃO','AGUARDANDO PEÇA','PRONTO','ENTREGUE','NÃO APROVADO','CANCELADO','DESCARTE'].map(s=>{
+          const n=sN(s);
+          const cores={E:'var(--verde)',P:'#7BA7F5',A:'var(--amarelo)',AP:'var(--roxo)',PC:'#14B8A6',NA:'#FB923C',C:'#9CA3AF',D:'var(--vermelho)'};
+          return `<span class="spill chip ch-${n}${o.status===s?' on':''}" onclick="mudStatus(${o.os},'${s}',this)">${s}</span>`;
+        }).join('')}
+      </div>
+    </div>`:''}
+    ${o.obs?`<div style="background:var(--bg2);border-radius:8px;padding:11px;margin-bottom:14px;border:1px solid var(--borda)"><div style="font-size:10px;color:var(--texto3);margin-bottom:4px">📝 OBS.</div><div style="font-size:12px">${o.obs}</div></div>`:''}
+    <div class="wabox">
+      <div class="watitle">💬 WhatsApp Business</div>
+      <div class="watbns">
+        ${[['orcamento','📤 Orç.'],['pronto','✅ Pronto'],['nao_aprovado','🟠 N/Ap.'],['reserva','📅 Reserva'],['garantia','🛡️ Gar.']].map(([t,l])=>
+          `<button class="btn btn-g btn-xs" onclick="trocarWA(${o.os},'${t}',this)">${l}</button>`).join('')}
+      </div>
+      <div class="wamsg" id="waMsgD">${msg}</div>
+      <div class="wabtns">
+        <a class="btn btn-wa btn-sm" id="waLinkD" href="${waLink(o,tipoWA)}" target="_blank">📱 Abrir WhatsApp</a>
+        <button class="btn btn-g btn-sm" onclick="copiar('waMsgD')">📋 Copiar</button>
+      </div>
+    </div>`;
+
+  abrir('ovOS');
+}
+
+async function mudStatus(n,s,el){
+  const o=OS.find(x=>x.os===n); if(!o) return;
+  const anterior=o.status;
+  o.status=s;
+  salvar();
+  if(APP_CONFIG.APPS_SCRIPT_URL){
+    try{
+      await backendPost({acao:'atualizarStatus',os:n,status:s});
+      backendOnline=true;
+    }catch(e){
+      o.status=anterior; salvar();
+      toast('❌ Não foi possível atualizar a planilha: '+e.message);
+      return;
+    }
+  }
+  document.querySelectorAll('#mOSb .spill').forEach(b=>b.classList.remove('on'));
+  if(el) el.classList.add('on');
+  toast(`✅ OS #${n} → ${s}`);
+  verificarAlertas();
+}
+
+function trocarWA(n,tipo,el){
+  const o=OS.find(x=>x.os===n); if(!o) return;
+  document.getElementById('waMsgD').textContent=montarMsg(o,tipo);
+  document.getElementById('waLinkD').href=waLink(o,tipo);
+  document.querySelectorAll('#mOSb .watbns .btn').forEach(b=>b.classList.remove('btn-az'));
+  el.classList.add('btn-az');
+}
+
+// ── EDITAR / EXCLUIR OS ────────────────────────────────────────────────────
+function editarOS(n){
+  const o=OS.find(x=>x.os===n); if(!o) return;
+  fechar('ovOS');
+  setTimeout(()=>{
+    osEditando=n;
+    document.getElementById('fOs').value=o.os;
+    document.getElementById('fData').value=o.entrada||'';
+    document.getElementById('fCli').value=o.cliente||'';
+    document.getElementById('fTel').value=o.tel||'';
+    document.getElementById('fSet').value=o.setor||'ELÉTRICOS';
+    document.getElementById('fAtt').value=o.atendente||'';
+    document.getElementById('fStt').value=o.status||'AGUARDANDO ORÇAMENTO';
+    document.getElementById('fEnt').value=o.entrega||'';
+    document.getElementById('fObs').value=o.obs||'';
+    const fe=document.getElementById('fEntTaxa'); if(fe) fe.value=o.entradaTaxa||'';
+    const fa=document.getElementById('fDataAprov'); if(fa) fa.value=o.dataAprovacao||'';
+    const fp=document.getElementById('fPrevOrc'); if(fp) fp.value=o.prevOrc||'';
+    const fm=document.getElementById('fPrevOrcMin'); if(fm) fm.value=o.prevOrcMin||'';
+    const fr=document.getElementById('fRespTec'); if(fr) fr.value=o.respTecnico||'';
+    const fg2=document.getElementById('fGarOrdem'); if(fg2) fg2.value=o.garantiasOrdem||'';
+    iIdx=0; document.getElementById('fItens').innerHTML='';
+    o.itens.forEach(it=>addItem(it));
+    const tit=document.getElementById('novaOSTitulo');
+    const btn=document.getElementById('btnSalvarOS');
+    if(tit) tit.textContent=`✏️ Editando OS #${n}`;
+    if(btn){ btn.textContent='💾 Salvar Alterações'; btn.onclick=()=>salvarOSForm(); }
+    ir('novaOS');
+  },100);
+}
+
+async function delOS(n){
+  // A base oficial não deve apagar fisicamente a linha.
+  // Mantemos o histórico e marcamos como CANCELADO.
+  if(!confirm(`Cancelar OS #${n}? A O.S. será mantida no histórico como CANCELADO.`)) return;
+  const o=OS.find(x=>x.os===n); if(!o) return;
+  o.status='CANCELADO'; salvar();
+  if(APP_CONFIG.APPS_SCRIPT_URL){
+    try{ await backendPost({acao:'atualizarStatus',os:n,status:'CANCELADO'}); }
+    catch(e){ toast('❌ Falha ao atualizar planilha: '+e.message); return; }
+  }
+  fechar('ovOS'); renderLista(); verificarAlertas();
+  toast(`⚫ OS #${n} → CANCELADO`);
+}
+
+// ── NOVA OS ──────────────────────────────────────────────────────────────
+let iIdx=0;
+function initNovaOS(){
+  const pg=document.getElementById('page-novaOS');
+  const agora   = new Date();
+  const hoje    = agora.toISOString().split('T')[0];
+  const horaMin = agora.toTimeString().slice(0,5);
+  pg.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div><div id="novaOSTitulo" style="font-family:Syne,sans-serif;font-size:18px;font-weight:800">Nova OS</div></div>
+      <button class="btn btn-g btn-sm" onclick="limparForm()">↺ Limpar</button>
+    </div>
+    <div style="max-width:740px">
+      <div class="card" style="margin-bottom:12px">
+        <div class="ctitle">📋 Dados do Cliente</div>
+        <div class="fgrid">
+          <div class="fg">
+            <label>Nº OS <span style="color:var(--texto3);font-weight:400;font-size:9px">(automático)</span></label>
+            <input type="text" id="fOs" value="" readonly
+              style="background:var(--bg3);color:var(--laranja);font-family:Syne,sans-serif;font-weight:800;font-size:16px;cursor:not-allowed;border-color:var(--borda)">
+          </div>
+          <div class="fg">
+            <label>Data / Hora de Entrada <span style="color:var(--verde);font-size:9px">● Auto</span></label>
+            <input type="text" id="fData" value="${hoje} ${horaMin}" readonly
+              style="background:var(--bg3);color:var(--texto2);cursor:not-allowed;border-color:var(--borda)">
+          </div>
+          <div class="fg">
+            <label>📱 Telefone (WhatsApp) <span style="color:var(--laranja);font-size:9px">★ buscar cliente</span></label>
+            <input type="tel" id="fTel" placeholder="31 9 0000-0000" oninput="buscarClientePorTel(this.value)">
+          </div>
+          <div class="fg">
+            <label>Cliente</label>
+            <input type="text" id="fCli" placeholder="Preenchido automaticamente ou novo cliente" list="dlCli">
+            <datalist id="dlCli">${[...new Set(OS.map(o=>o.cliente))].sort().map(n=>`<option value="${n}">`).join('')}</datalist>
+          </div>
+          <div class="fg"><label>Setor</label>
+            <select id="fSet" onchange="atualizarPrazoEntrega()">
+              <option value="ELÉTRICOS">⚡ Elétricos (30 dias)</option>
+              <option value="PANELAS">🫕 Panelas (10 dias)</option>
+              <option value="LIQUIDIFICADORES">🫙 Liquidificadores (20 dias)</option>
+              <option value="MICROONDAS">📡 Microondas (30 dias)</option>
+              <option value="SERVIÇOS">🔧 Serviços (30 dias)</option>
+              <option value="OUTROS">📦 Outros (10 dias)</option>
+            </select>
+          </div>
+          <div class="fg"><label>Atendente</label>
+            <select id="fAtt">${USUARIOS.filter(u=>u.ativo!==false).map(u=>`<option${u.nome===usuario?.nome?' selected':''}>${u.nome}</option>`).join('')}</select>
+          </div>
+          <div class="fg"><label>Status</label>
+            <select id="fStt">
+              <option>AGUARDANDO ORÇAMENTO</option><option>AGUARDANDO APROVAÇÃO</option>
+              <option>AGUARDANDO PEÇA</option><option>PRONTO</option><option>ENTREGUE</option>
+              <option>NÃO APROVADO</option><option>CANCELADO</option><option>DESCARTE</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Previsão de Entrega <span id="lblPrazo" style="color:var(--laranja2);font-size:9px">(30 dias para ELÉTRICOS)</span></label>
+            <input type="date" id="fEnt" style="border-color:rgba(34,197,94,.3)">
+          </div>
+          <div style="grid-column:1/-1;font-size:11px;min-height:18px;margin-top:-6px" id="avisoCliente"></div>
+          <div class="fg fc2"><label>Observações</label><textarea id="fObs" placeholder="Condições do aparelho, combinados..."></textarea></div>
+        </div>
+        <div class="fgrid" style="margin-top:12px">
+          <div class="fg">
+            <label>💰 Entrada / Taxa (R$)</label>
+            <input type="number" id="fEntTaxa" placeholder="0,00" step="0.01" min="0">
+          </div>
+          <div class="fg">
+            <label>📅 Data de Aprovação</label>
+            <input type="date" id="fDataAprov">
+          </div>
+          <div class="fg">
+            <label>📅 Previsão de Orçamento</label>
+            <input type="date" id="fPrevOrc">
+          </div>
+          <div class="fg">
+            <label>💲 Previsão Menor Orçamento (R$)</label>
+            <input type="number" id="fPrevOrcMin" placeholder="0,00" step="0.01" min="0">
+          </div>
+          <div class="fg">
+            <label>👨‍🔧 Responsável Técnico</label>
+            <select id="fRespTec">
+              <option value="">— A definir —</option>
+              <option>ISACKSON JUNIO</option>
+              <option>WILGLER</option>
+              <option>EXTERNO</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>🛡️ Garantias em Ordem</label>
+            <input type="text" id="fGarOrdem" placeholder="Ex: 30, 60, 30">
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="ctitle">🔧 Itens <button class="btn btn-g btn-sm" onclick="addItem()">+ Item</button></div>
+        <div id="fItens"></div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-p btn-lg" style="flex:1" id="btnSalvarOS" onclick="salvarOSForm()">💾 Salvar OS</button>
+        <button class="btn btn-g btn-lg" onclick="salvarESendWA()">💾📱 Salvar + WA</button>
+      </div>
+    </div>`;
+  iIdx=0; addItem();
+  // Calcular prazo inicial
+  setTimeout(atualizarPrazoEntrega, 50);
+  carregarProximoOSNoFormulario();
+}
+
+function addItem(dados=null){
+  iIdx++;
+  const d=document.createElement('div');
+  d.className='ibloco'; d.id=`ib${iIdx}`;
+  const servico = dados?.servico || '';
+  const historico = dados?.historico || dados?.hist || '';
+  d.innerHTML=`
+    <div class="ibhead">
+      <span class="ibtitle">Item ${iIdx}</span>
+      ${iIdx>1?`<button class="btn btn-vm btn-xs" onclick="document.getElementById('ib${iIdx}').remove()">✕ Remover</button>`:''}
+    </div>
+    <div class="fgrid">
+      <div class="fg fc2"><label>Aparelho / Item</label><input type="text" id="iap${iIdx}" value="${(dados?.ap||'').replace(/"/g,'&quot;')}" placeholder="Ex: Air Fryer Mondial, Panela 4,5L..."></div>
+      <div class="fg fc2"><label>Serviço</label><textarea id="isv${iIdx}" placeholder="Descreva o serviço executado/orçado...">${servico}</textarea></div>
+      <div class="fg fc2"><label>Histórico</label><textarea id="iht${iIdx}" placeholder="Observações, defeito, condição, histórico...">${historico}</textarea></div>
+      <div class="fg"><label>Valor (R$)</label><input type="number" id="ivl${iIdx}" value="${dados?.val||''}" placeholder="0,00" step="0.01" min="0"></div>
+      <div class="fg"><label>Garantia (dias)</label><input type="number" id="iga${iIdx}" value="${dados?.gar||30}" min="0"></div>
+    </div>`;
+  document.getElementById('fItens').appendChild(d);
+}
+
+function getItens(){
+  const its=[];
+  for(let i=1;i<=iIdx;i++){
+    const ap=document.getElementById(`iap${i}`)?.value.trim();
+    const servico=document.getElementById(`isv${i}`)?.value.trim()||'';
+    const historico=document.getElementById(`iht${i}`)?.value.trim()||'';
+    const val=parseFloat(document.getElementById(`ivl${i}`)?.value)||0;
+    const gar=parseInt(document.getElementById(`iga${i}`)?.value)||30;
+    if(!ap && !servico && !historico && !val) continue;
+    its.push({ap,servico,historico,hist:historico||servico,val,gar});
+  }
+  return its;
+}
+
+function limparForm(){
+  osEditando=null;
+  const fOs=document.getElementById('fOs'); if(fOs) fOs.value='';
+  const fData=document.getElementById('fData'); if(fData){ const d=new Date(); fData.value=d.toISOString().split('T')[0]; }
+  const fCli=document.getElementById('fCli'); if(fCli) fCli.value='';
+  const fTel=document.getElementById('fTel'); if(fTel) fTel.value='';
+  const fObs=document.getElementById('fObs'); if(fObs) fObs.value='';
+  const btn=document.getElementById('btnSalvarOS'); if(btn){btn.textContent='💾 Salvar OS';btn.onclick=salvarOSForm;}
+  const tit=document.getElementById('novaOSTitulo'); if(tit) tit.textContent='Nova OS';
+  iIdx=0; const fi=document.getElementById('fItens'); if(fi){ fi.innerHTML=''; addItem(); }
+  carregarProximoOSNoFormulario();
+}
+
+async function carregarProximoOSNoFormulario(){
+  const campo=document.getElementById('fOs');
+  if(!campo || osEditando) return;
+  try{
+    if(APP_CONFIG.APPS_SCRIPT_URL){
+      const d=await backendGet('proximoOS');
+      campo.value=d.os;
+    }else{
+      campo.value=proxOS();
+    }
+  }catch(e){ campo.value=proxOS(); }
+}
+
+async function salvarOSForm(){
+  const cli=(document.getElementById('fCli')?.value||'').trim();
+  if(!cli){ toast('⚠️ Informe o cliente'); return null; }
+  const itens=getItens();
+  if(!itens.length){ toast('⚠️ Adicione ao menos 1 item'); return null; }
+
+  const agora2 = new Date();
+  const dataEntradaCompleta = document.getElementById('fData')?.value?.slice(0,10) || agora2.toISOString().split('T')[0];
+  const setor2 = document.getElementById('fSet')?.value || 'ELÉTRICOS';
+  const entrega2 = document.getElementById('fEnt')?.value || calcularEntrega(setor2, dataEntradaCompleta);
+  let numOS = parseInt(document.getElementById('fOs')?.value) || 0;
+
+  // Número oficial vem do servidor. Nunca usamos o contador local para confirmar gravação.
+  if(!osEditando && APP_CONFIG.APPS_SCRIPT_URL){
+    try{ const d=await backendGet('proximoOS'); numOS=Number(d.os); }
+    catch(e){ toast('❌ Não consegui obter o próximo número da planilha: '+e.message); return null; }
+  }
+  if(!numOS) numOS=proxOS();
+
+  const n={
+    os:numOS, cliente:cli, tel:(document.getElementById('fTel')?.value||'').replace(/\D/g,''),
+    setor:setor2, atendente:document.getElementById('fAtt')?.value||'', itens,
+    status:document.getElementById('fStt')?.value||'AGUARDANDO ORÇAMENTO',
+    entrada:dataEntradaCompleta, entrega:entrega2,
+    entradaTaxa:parseFloat(document.getElementById('fEntTaxa')?.value)||0,
+    dataAprovacao:document.getElementById('fDataAprov')?.value||'',
+    prevOrc:document.getElementById('fPrevOrc')?.value||'',
+    prevOrcMin:parseFloat(document.getElementById('fPrevOrcMin')?.value)||0,
+    respTecnico:document.getElementById('fRespTec')?.value||'',
+    garantiasOrdem:document.getElementById('fGarOrdem')?.value||'',
+    obs:document.getElementById('fObs')?.value||'',
+    valorTotal:itens.reduce((s,i)=>s+(Number(i.val)||0),0)
+  };
+
+  const antigoIndex=OS.findIndex(x=>x.os===numOS);
+  const antigo=antigoIndex>=0?OS[antigoIndex]:null;
+  if(osEditando && antigoIndex<0){ toast('❌ O.S. original não encontrada no sistema.'); return null; }
+
+  try{
+    if(APP_CONFIG.APPS_SCRIPT_URL){
+      const acao=osEditando?'atualizarOS':'novaOS';
+      const d=await backendPost({acao,os:n});
+      if(d.os) n.os=Number(d.os);
+      backendOnline=true;
+    }
+    if(antigoIndex>=0) OS[antigoIndex]=n; else OS.unshift(n);
+    salvar();
+    sincronizarCliente(n);
+    toast(`✅ OS #${n.os} — ${cli} ${osEditando?'atualizada':'salva'} na planilha!`);
+    verificarAlertas();
+    osEditando=null;
+    const btn=document.getElementById('btnSalvarOS'); if(btn){btn.textContent='💾 Salvar OS';btn.onclick=salvarOSForm;}
+    const tit=document.getElementById('novaOSTitulo'); if(tit) tit.textContent='Nova OS';
+    limparForm();
+    return n;
+  }catch(e){
+    toast('❌ O.S. NÃO gravada na planilha: '+e.message);
+    return null;
+  }
+}
+function salvarESendWA(){ const n=salvarOSForm(); if(n) setTimeout(()=>abrirWA(n.os),200); }
+
+// ── CLIENTES ──────────────────────────────────────────────────────────────
+function renderClientes(){
+  const pg=document.getElementById('page-clientes');
+  pg.innerHTML=`
+    <div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;margin-bottom:16px">👥 Clientes</div>
+    <div class="busca" style="max-width:380px;margin-bottom:14px">
+      <span style="color:var(--texto3)">🔍</span>
+      <input type="text" id="bCli" placeholder="Nome ou telefone..." oninput="filtCli()">
+    </div>
+    <div id="listaCli"></div>`;
+  filtCli();
+}
+function filtCli(){
+  const q=(document.getElementById('bCli')?.value||'').toLowerCase();
+  const m={};
+  OS.forEach(o=>{ if(!m[o.cliente]) m[o.cliente]={nome:o.cliente,tel:o.tel,fat:0,oss:0,ultimo:''}; m[o.cliente].fat+=totOS(o); m[o.cliente].oss++; if(!m[o.cliente].ultimo||o.entrada>m[o.cliente].ultimo) m[o.cliente].ultimo=o.entrada; });
+  const l=Object.values(m).sort((a,b)=>b.fat-a.fat).filter(c=>!q||c.nome.toLowerCase().includes(q)||c.tel?.includes(q));
+  const cores=['#F57518','#0A4A96','#22C55E','#8B5CF6','#F59E0B','#EF4444'];
+  document.getElementById('listaCli').innerHTML=l.slice(0,30).map((c,i)=>`
+    <div class="clicard" onclick="verOSsCli('${c.nome}')">
+      <div class="cliav" style="background:${cores[i%6]}22;color:${cores[i%6]}">${c.nome.charAt(0)}</div>
+      <div class="cliinfo">
+        <div class="clinom">${c.nome}</div>
+        <div class="clitel">📱 ${c.tel||'—'}</div>
+        <div style="display:flex;gap:14px;margin-top:6px;font-size:11px">
+          <span class="clistat"><b>${c.oss}</b> OSs</span>
+          <span class="clistat"><b>${R(c.fat)}</b> total</span>
+          <span class="clistat">Último: <b>${fD(c.ultimo)}</b></span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <button class="btn btn-wa btn-xs" onclick="event.stopPropagation();abrirWACli('${c.nome}')">📱</button>
+        <button class="btn btn-g btn-xs" onclick="event.stopPropagation();verOSsCli('${c.nome}')">📋</button>
+      </div>
+    </div>`).join('')||'<div style="text-align:center;padding:40px;color:var(--texto3)">Nenhum cliente</div>';
+}
+function verOSsCli(n){ document.getElementById('bLista') ? document.getElementById('bLista').value=n : null; fSt='TODOS'; ir('lista'); setTimeout(()=>{ const b=document.getElementById('bLista'); if(b){b.value=n;atualizarLista();} },100); }
+function abrirWACli(n){ const o=OS.find(x=>x.cliente===n&&sN(x.status)==='P'); if(o) abrirWA(o.os); else toast('Nenhuma OS pronta para '+n.split(' ')[0]); }
+
+// ── GARANTIAS ──────────────────────────────────────────────────────────────
+function renderGarantias(){
+  const hoje=new Date();
+  const ent=OS.filter(o=>sN(o.status)==='E'&&o.entrega&&o.itens[0]?.gar>0);
+  const wD=ent.map(o=>{ const v=new Date(new Date(o.entrega).getTime()+(o.itens[0]?.gar||30)*864e5); return {...o,ds:Math.round((v-hoje)/864e5),venc:v}; }).sort((a,b)=>a.ds-b.ds);
+  const urg=wD.filter(o=>o.ds<0).length, at=wD.filter(o=>o.ds>=0&&o.ds<=7).length, ok=wD.filter(o=>o.ds>7).length;
+  const pg=document.getElementById('page-garantias');
+  pg.innerHTML=`
+    <div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;margin-bottom:16px">🛡️ Garantias</div>
+    <div class="stats" style="margin-bottom:18px">
+      ${[['⚠️',urg,'Vencidas','var(--vermelho)'],['🔶',at,'Vencem em 7 dias','var(--amarelo)'],['🛡️',ok,'Ativas','var(--verde)']].map(([i,v,l,a])=>`<div class="sc" style="--acc:${a}"><div class="sc-ico">${i}</div><div class="sc-val">${v}</div><div class="sc-lbl">${l}</div></div>`).join('')}
+    </div>
+    ${wD.slice(0,20).map(o=>{
+      const cl=o.ds<0?'gurg':o.ds<=7?'gat':'gok';
+      return `<div class="gcard" onclick="abrirOS(${o.os})">
+        <div class="gdias ${cl}"><div class="gd-n">${Math.abs(o.ds)}</div><div class="gd-s">${o.ds<0?'atrás':'dias'}</div></div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:700">${o.cliente}</div>
+          <div style="font-size:11px;color:var(--texto3)">#${o.os} · ${o.itens[0]?.ap?.slice(0,30)||'—'}</div>
+          <div style="font-size:10px;color:var(--texto3)">Vence: ${fD(o.venc.toISOString().split('T')[0])} · ${o.itens[0]?.gar||30}d</div>
+        </div>
+        <button class="btn btn-wa btn-xs" onclick="event.stopPropagation();abrirWA(${o.os},'garantia')">📱</button>
+      </div>`;
+    }).join('')||'<div style="text-align:center;padding:40px;color:var(--texto3)">Nenhuma garantia ativa</div>'}`;
+}
+
+// ── WHATSAPP ──────────────────────────────────────────────────────────────
+function renderWA(){
+  const pg=document.getElementById('page-whatsapp');
+  const tpls=[
+    {t:'orcamento',   l:'📤 Orçamento',          c:'var(--laranja)'},
+    {t:'pronto',      l:'✅ Pronto p/ Retirada',  c:'#7BA7F5'},
+    {t:'nao_aprovado',l:'🟠 Não Aprovado',        c:'#FB923C'},
+    {t:'reserva',     l:'📅 Trazer Aparelho',     c:'var(--roxo)'},
+    {t:'garantia',    l:'🛡️ Garantia',            c:'var(--verde)'},
+    {t:'aguardando',  l:'🔧 Aguardando Peça',     c:'#14B8A6'},
+  ];
+  pg.innerHTML=`
+    <div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800;margin-bottom:16px">💬 Central WhatsApp</div>
+    <div class="g2">
+      <div class="card">
+        <div class="ctitle">📝 Templates</div>
+        ${tpls.map(({t,l,c})=>`
+          <div style="background:var(--bg2);border-radius:8px;padding:12px;border-left:3px solid ${c};margin-bottom:8px">
+            <div style="font-size:11px;font-weight:700;color:${c};margin-bottom:5px">${l}</div>
+            <div style="font-size:10px;color:var(--texto3);line-height:1.5;margin-bottom:8px">${tmplPrev(t)}</div>
+            <button class="btn btn-g btn-xs" onclick="copiarTpl('${t}')">📋 Copiar</button>
+          </div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="ctitle">📤 Envio Rápido
+          <div class="busca" style="max-width:180px"><span>🔍</span><input type="text" id="bWA" placeholder="OS ou cliente..." oninput="filtWA()"></div>
+        </div>
+        <div id="listaWA" style="max-height:480px;overflow-y:auto"></div>
+      </div>
+    </div>`;
+  filtWA();
+}
+
+function filtWA(){
+  const q=(document.getElementById('bWA')?.value||'').toLowerCase();
+  const d=q?OS.filter(o=>o.cliente.toLowerCase().includes(q)||String(o.os).includes(q)):OS.slice(0,25);
+  document.getElementById('listaWA').innerHTML=d.map(o=>`
+    <div style="background:var(--bg2);border-radius:8px;padding:9px 11px;margin-bottom:5px;display:flex;align-items:center;gap:8px">
+      <span class="td-os" style="font-size:11px;min-width:44px">#${o.os}</span>
+      <span style="flex:1;font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.cliente}</span>
+      ${chip(o.status)}
+      <button class="btn btn-wa btn-xs" onclick="abrirWA(${o.os})">📱</button>
+    </div>`).join('')||'<div style="padding:20px;text-align:center;color:var(--texto3)">Busque acima</div>';
+}
+
+function tmplPrev(t){ return montarMsg({os:'0000',cliente:'CLIENTE',itens:[{ap:'APARELHO',val:0}]},t).slice(0,80)+'...'; }
+function copiarTpl(t){ navigator.clipboard.writeText(montarMsg({os:'[OS]',cliente:'[CLIENTE]',itens:[{ap:'[APARELHO]',val:0}]},t)); toast('📋 Template copiado!'); }
+
+// ── RELATÓRIOS ────────────────────────────────────────────────────────────
+function renderRel(){
+  const fat=OS.reduce((s,o)=>s+totOS(o),0);
+  const tm=fat/OS.filter(o=>totOS(o)>0).length||0;
+  const pg=document.getElementById('page-relatorios');
+  pg.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+      <div style="font-family:Syne,sans-serif;font-size:18px;font-weight:800">📈 Relatórios</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-g btn-sm" onclick="imprimirRel()">🖨️ Imprimir</button>
+        ${p().csv?`<button class="btn btn-g btn-sm" onclick="exportCSV()">⬇️ CSV</button>`:''}
+      </div>
+    </div>
+    <div class="stats" style="margin-bottom:18px">
+      ${[['💰',R(fat),'Faturamento Total','var(--laranja2)'],['🎯',R(tm),'Ticket Médio','var(--verde)'],['📋',OS.length,'Total OSs','var(--laranja)'],['👥',new Set(OS.map(o=>o.cliente)).size,'Clientes','var(--roxo)']].map(([i,v,l,a])=>`<div class="sc" style="--acc:${a}"><div class="sc-ico">${i}</div><div class="sc-val">${v}</div><div class="sc-lbl">${l}</div></div>`).join('')}
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ctitle">💰 Faturamento Mensal</div>
+        ${(()=>{
+          const fm={};
+          OS.forEach(o=>{ const [y,m]=o.entrada.split('-'); const k=`${m}/${y}`; fm[k]=(fm[k]||0)+totOS(o); });
+          const ms=Object.keys(fm).sort(); const tot=Object.values(fm).reduce((s,v)=>s+v,0);
+          return ms.map(m=>`<div class="fatrow"><span style="font-size:12px;font-weight:600">${m}</span><div style="flex:1;margin:0 10px"><div class="bartr"><div class="barfl" style="width:${fm[m]/tot*100}%"></div></div></div><span style="font-family:Syne,sans-serif;font-size:12px;font-weight:800;color:var(--laranja2)">${R(fm[m])}</span></div>`).join('');
+        })()}
+      </div>
+      <div class="card">
+        <div class="ctitle">👤 Atendentes</div>
+        ${(()=>{
+          const af={};
+          OS.forEach(o=>{ if(!o.atendente) return; if(!af[o.atendente]) af[o.atendente]={fat:0,oss:0}; af[o.atendente].fat+=totOS(o); af[o.atendente].oss++; });
+          const ats=Object.entries(af).sort((a,b)=>b[1].fat-a[1].fat);
+          const mx=ats[0]?.[1].fat||1;
+          return ats.map(([n,d])=>`<div class="bar"><span class="barlbl">${n.split(' ')[0]}</span><div class="bartr"><div class="barfl" style="width:${d.fat/mx*100}%"></div></div><span class="barval">${R(d.fat)}</span></div>`).join('');
+        })()}
+      </div>
+    </div>`;
+}
+
+// ── WA MODAL ──────────────────────────────────────────────────────────────
+function abrirWA(n, tipoI=null){
+  const o=OS.find(x=>x.os===n); if(!o) return;
+  const sn=sN(o.status);
+  const tipo=tipoI||(sn==='P'?'pronto':sn==='NA'?'nao_aprovado':'orcamento');
+  document.getElementById('mWAb').innerHTML=`
+    <div style="background:var(--bg2);border-radius:8px;padding:10px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+      <span class="td-os">#${o.os}</span>
+      <span style="font-weight:700;flex:1">${o.cliente}</span>
+      ${chip(o.status)}
+      <span class="td-val">${R(totOS(o))}</span>
+    </div>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
+      ${[['orcamento','📤 Orç.'],['pronto','✅ Pronto'],['nao_aprovado','🟠 N/Ap.'],['reserva','📅 Reserva'],['garantia','🛡️ Gar.'],['aguardando','🔧 Ag.Peça']].map(([t,l])=>
+        `<button class="btn btn-g btn-xs${t===tipo?' btn-az':''}" onclick="mudWA(${n},'${t}',this)">${l}</button>`).join('')}
+    </div>
+    <div class="wamsg" id="waMsgM">${montarMsg(o,tipo)}</div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <a class="btn btn-wa" id="waLinkM" href="${waLink(o,tipo)}" target="_blank">📱 Abrir WhatsApp</a>
+      <button class="btn btn-g" onclick="copiar('waMsgM')">📋 Copiar</button>
+    </div>`;
+  abrir('ovWA');
+}
+
+function mudWA(n,tipo,el){
+  const o=OS.find(x=>x.os===n); if(!o) return;
+  document.getElementById('waMsgM').textContent=montarMsg(o,tipo);
+  document.getElementById('waLinkM').href=waLink(o,tipo);
+  document.querySelectorAll('#mWAb .btn').forEach(b=>b.classList.remove('btn-az'));
+  el.classList.add('btn-az');
+}
+
+// ── MENSAGENS ──────────────────────────────────────────────────────────────
+function montarMsg(o,tipo){
+  const v=R(totOS(o)), ap=o.itens[0]?.ap||'', n=o.os;
+  const msgs={
+    orcamento:`🔧 PONTO DOS FOGÕES – CONTAGEM\nAssistência Técnica em Eletrodomésticos\n\nOlá, ${o.cliente}! Seu equipamento foi avaliado.\n\n📋 OS nº ${n}\n💰 Valor: ${v}\n🔸 ${ap}\n\nPodemos autorizar o conserto? Após aprovação entramos na fila de manutenção!`,
+    pronto:`🔥 PONTO DOS FOGÕES – CONTAGEM\n\nOlá, ${o.cliente}! A OS nº ${n} está PRONTA! 🎉\n\n💰 Valor: ${v}\n\n⏰ Seg–Sex: 09h–18h | Sáb: 09h–14h\n📍 Rua Rodrigues da Cunha 767, Ressaca – Contagem\n\nAgradecemos a preferência!`,
+    nao_aprovado:`Olá, ${o.cliente}! OS nº ${n}.\n\nEm caso de *Não Aprovação*, escolha:\n\n✔ *Retirar* – Taxa R$ 20,00\n🗑️ *Descartar* – Descarte adequado\n\nAguardamos!\nPonto dos Fogões – Contagem`,
+    reserva:`🔧 PONTO DOS FOGÕES – CONTAGEM\n\nOlá, ${o.cliente}! A OS nº ${n} está reservada.\n\nTraga o equipamento para avaliação.\n📍 Rua Rodrigues da Cunha 767, Ressaca – Contagem\n\nAguardamos! 😊`,
+    garantia:`🛡️ PONTO DOS FOGÕES\n\nOlá, ${o.cliente}! Sua garantia da OS nº ${n} está ativa.\n\n🔸 ${ap}\n\nQualquer problema, traga sem custo! 🔥`,
+    aguardando:`🔧 PONTO DOS FOGÕES\n\nOlá, ${o.cliente}! OS nº ${n}.\n\nAguardamos a peça para o seu ${ap}.\nAssim que chegar, avisamos! 🙏`,
+  };
+  return msgs[tipo]||msgs.orcamento;
+}
+function waLink(o,tipo){ const t=(o.tel||'').replace(/\D/g,''); const p_=t.startsWith('55')?t:'55'+t; return `https://wa.me/${p_}?text=${encodeURIComponent(montarMsg(o,tipo))}`; }
+
+// ── IMPRESSÃO ──────────────────────────────────────────────────────────────
+function imprimirOS(){
+  if(!osAtual) return;
+  const o=OS.find(x=>x.os===osAtual); if(!o) return;
+  document.getElementById('mPrint').innerHTML=`
+    <div style="font-family:Arial,sans-serif;padding:20px;max-width:580px;margin:0 auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #F57518;padding-bottom:12px;margin-bottom:16px">
+        <div>
+          <div style="font-size:20px;font-weight:900;color:#F57518">Ponto dos Fogões</div>
+          <div style="font-size:11px;color:#666">Rua Rodrigues da Cunha 767, Ressaca – Contagem MG</div>
+          <div style="font-size:11px;color:#666">(31) 99268-3079 | CNPJ: 40.629028/0001-07</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:28px;font-weight:900;color:#0A4A96">OS #${o.os}</div>
+          <div style="font-size:11px;color:#666">Entrada: ${fD(o.entrada)}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        ${[['CLIENTE',o.cliente],['TELEFONE',o.tel||'—'],['SETOR',o.setor],['ATENDENTE',o.atendente||'—'],['DATA ENTRADA',fD(o.entrada)],['PREV. ENTREGA',fD(o.entrega)]].map(([k,v])=>`
+          <div style="border:1px solid #ddd;border-radius:6px;padding:8px">
+            <div style="font-size:9px;color:#999;font-weight:700;text-transform:uppercase;margin-bottom:2px">${k}</div>
+            <div style="font-size:13px;font-weight:600">${v}</div>
+          </div>`).join('')}
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:14px">
+        <thead><tr style="background:#0A4A96;color:white">
+          <th style="padding:8px;text-align:left;font-size:11px">#</th>
+          <th style="padding:8px;text-align:left;font-size:11px">APARELHO</th>
+          <th style="padding:8px;text-align:left;font-size:11px">SERVIÇO</th>
+          <th style="padding:8px;text-align:right;font-size:11px">VALOR</th>
+        </tr></thead>
+        <tbody>${o.itens.map((it,i)=>`
+          <tr style="border-bottom:1px solid #eee${i%2?';background:#f9f9f9':''}">
+            <td style="padding:8px;font-size:12px;font-weight:700">${i+1}</td>
+            <td style="padding:8px;font-size:12px">${it.ap}</td>
+            <td style="padding:8px;font-size:11px;color:#666">${it.hist}</td>
+            <td style="padding:8px;font-size:12px;font-weight:700;text-align:right">${R(it.val)}</td>
+          </tr>`).join('')}</tbody>
+      </table>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:10px;flex-wrap:wrap">
+        ${o.entradaTaxa?`<div style="border:1px solid #eee;border-radius:8px;padding:10px 16px;text-align:center">
+          <div style="font-size:10px;color:#999;font-weight:700">ENTRADA / TAXA</div>
+          <div style="font-size:18px;font-weight:900;color:#22C55E">${R(o.entradaTaxa)}</div>
+        </div>`:''}
+        ${o.respTecnico?`<div style="border:1px solid #eee;border-radius:8px;padding:10px 16px;text-align:center">
+          <div style="font-size:10px;color:#999;font-weight:700">RESP. TÉCNICO</div>
+          <div style="font-size:14px;font-weight:700">${o.respTecnico}</div>
+        </div>`:''}
+        ${o.dataAprovacao?`<div style="border:1px solid #eee;border-radius:8px;padding:10px 16px;text-align:center">
+          <div style="font-size:10px;color:#999;font-weight:700">DATA APROVAÇÃO</div>
+          <div style="font-size:14px;font-weight:700">${fD(o.dataAprovacao)}</div>
+        </div>`:''}
+        <div style="border:2px solid #F57518;border-radius:8px;padding:12px 20px;text-align:right;margin-left:auto">
+          ${o.entradaTaxa?`<div style="font-size:10px;color:#999">ENTRADA: ${R(o.entradaTaxa)}</div>`:''}
+          <div style="font-size:11px;color:#666">TOTAL A PAGAR</div>
+          <div style="font-size:24px;font-weight:900;color:#F57518">${R(totOS(o))}</div>
+          ${o.entradaTaxa?`<div style="font-size:11px;color:#22C55E;font-weight:700">SALDO: ${R(totOS(o)-o.entradaTaxa)}</div>`:''}
+        </div>
+      </div>
+      ${o.obs?`<div style="border:1px solid #eee;border-radius:6px;padding:10px;margin-bottom:14px"><div style="font-size:10px;color:#999;font-weight:700;margin-bottom:4px">OBSERVAÇÕES</div><div style="font-size:12px">${o.obs}</div></div>`:''}
+      <div style="text-align:center;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:10px">
+        Garantia: ${o.itens[0]?.gar||30} dias | Obrigado pela preferência! 🔥
+      </div>
+    </div>`;
+  fechar('ovOS');
+  abrir('ovPrint');
+}
+
+function imprimirEtq(){
+  if(!osAtual) return;
+  const o=OS.find(x=>x.os===osAtual); if(!o) return;
+  document.getElementById('mPrint').innerHTML=`
+    <div style="border:2px dashed #ccc;border-radius:8px;padding:16px;width:280px;margin:20px auto;font-family:Arial,sans-serif">
+      <div style="font-size:14px;font-weight:900;color:#F57518;border-bottom:2px solid #F57518;padding-bottom:8px;margin-bottom:10px">Ponto dos Fogões</div>
+      <div style="font-size:26px;font-weight:900;color:#0A4A96;text-align:center;margin:8px 0">OS #${o.os}</div>
+      <div style="border:1px solid #eee;border-radius:6px;padding:8px;margin-bottom:7px">
+        <div style="font-size:9px;color:#999">CLIENTE</div>
+        <div style="font-size:13px;font-weight:700">${o.cliente}</div>
+      </div>
+      <div style="border:1px solid #eee;border-radius:6px;padding:8px;margin-bottom:7px">
+        <div style="font-size:9px;color:#999">APARELHO</div>
+        <div style="font-size:12px;font-weight:600">${o.itens.map(i=>i.ap).join(' + ').slice(0,55)}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div style="border:1px solid #eee;border-radius:6px;padding:7px">
+          <div style="font-size:9px;color:#999">ENTRADA</div>
+          <div style="font-size:12px;font-weight:700">${fD(o.entrada)}</div>
+        </div>
+        <div style="border:1px solid #eee;border-radius:6px;padding:7px">
+          <div style="font-size:9px;color:#999">ATENDENTE</div>
+          <div style="font-size:11px;font-weight:700">${o.atendente||'—'}</div>
+        </div>
+      </div>
+      <div style="text-align:center;font-size:9px;color:#999;margin-top:10px">(31) 99268-3079</div>
+    </div>`;
+  fechar('ovOS');
+  abrir('ovPrint');
+}
+
+function imprimirRel(){
+  const d=new Date().toLocaleDateString('pt-BR');
+  const fat=OS.reduce((s,o)=>s+totOS(o),0);
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>Relatório Ponto dos Fogões</title><style>body{font-family:Arial;padding:24px}table{width:100%;border-collapse:collapse}th{background:#0A4A96;color:#fff;padding:8px;text-align:left;font-size:11px}td{padding:7px 8px;border-bottom:1px solid #eee;font-size:12px}</style></head><body>
+    <h2 style="color:#F57518">Ponto dos Fogões — Relatório de OSs</h2>
+    <p style="color:#666;margin-bottom:16px">${d} | ${OS.length} OSs | ${R(fat)}</p>
+    <table><thead><tr><th>OS</th><th>Cliente</th><th>Setor</th><th>Aparelho</th><th>Atendente</th><th>Status</th><th>Valor</th><th>Entrada</th></tr></thead>
+    <tbody>${OS.map(o=>`<tr><td><b>#${o.os}</b></td><td>${o.cliente}</td><td>${o.setor}</td><td>${o.itens[0]?.ap||'—'}</td><td>${o.atendente||'—'}</td><td>${o.status}</td><td style="font-weight:700;color:#F57518">${R(totOS(o))}</td><td>${fD(o.entrada)}</td></tr>`).join('')}</tbody>
+    </table></body></html>`);
+  w.document.close(); w.print();
+}
+
+function exportCSV(){
+  const h='OS,Cliente,Telefone,Setor,Aparelho,Serviço,Atendente,Status,Valor,Entrada/Taxa,Entrada,Entrega,Resp.Técnico,DataAprovação,PrevOrç,PrevOrçMin\n';
+  const r=OS.flatMap(o=>o.itens.map(it=>`${o.os},"${o.cliente}","${o.tel}","${o.setor}","${it.ap}","${it.hist}","${o.atendente}","${o.status}",${it.val},${o.entradaTaxa||0},"${fD(o.entrada)}","${fD(o.entrega)}","${o.respTecnico||''}","${fD(o.dataAprovacao)}","${fD(o.prevOrc)}",${o.prevOrcMin||0}`)).join('\n');
+  const b=new Blob(['\ufeff'+h+r],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b);
+  a.download=`PontoDosF_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+  toast('⬇️ CSV exportado!');
+}
+
+// ── OVERLAY ──────────────────────────────────────────────────────────────
+const abrir=id=>document.getElementById(id)?.classList.add('on');
+const fechar=id=>document.getElementById(id)?.classList.remove('on');
+function copiar(id){ navigator.clipboard.writeText(document.getElementById(id)?.textContent||'').then(()=>toast('📋 Copiado!')); }
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+let toastT;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2800); }
+
+// ── TECLADO ────────────────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ ['ovOS','ovWA','ovPrint'].forEach(fechar); }
+  if(e.ctrlKey&&e.key==='n'&&usuario){ e.preventDefault(); ir('novaOS'); }
+});
+
+// ── TOUCH SWIPE ───────────────────────────────────────────────────────────
+let ty=0;
+document.addEventListener('touchstart',e=>ty=e.touches[0].clientY,{passive:true});
+document.addEventListener('touchend',e=>{ if(e.changedTouches[0].clientY-ty>80) ['ovOS','ovWA','ovPrint'].forEach(fechar); },{passive:true});
+
+// ── INIT ────────────────────────────────────────────────────────────────────
+carregar();
+initLogin();
+carregarDoServidor();
+</script>
+</body>
+</html>
